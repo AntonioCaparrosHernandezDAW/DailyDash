@@ -1,21 +1,27 @@
 <script setup>
 import '../assets/main.css'
+
+const emit=defineEmits(['ChangeSection']);
+
+function changeSection(newSection){
+    emit("ChangeSection", newSection);
+}
 </script>
 
 <template>
     <div class="container-fluid" id="sidebar" style="text-align: center;">
         <div class="sidebar_common_opt">
             <div class="row">
-                <button>Notas</button>
+                <button @click="()=>{changeSection('Notes')}">Notas</button>
             </div>
             <div class="row">
-                <button>Diario</button>
+                <button @click="()=>{changeSection('Diary')}">Diario</button>
             </div>
             <div class="row">
-                <button>Calendario</button>
+                <button @click="()=>{changeSection('Calendar')}">Calendario</button>
             </div>
             <div class="row">
-                <button>Comprar</button>
+                <button @click="()=>{changeSection('Buy')}">Comprar</button>
             </div>
         </div>
 

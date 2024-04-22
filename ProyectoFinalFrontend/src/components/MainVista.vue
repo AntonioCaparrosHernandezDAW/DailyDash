@@ -1,19 +1,37 @@
-<script setup>
+<script setup> 
 import HeaderComponent from './HeaderComponent.vue';
 import SidebarComponent from './SidebarComponent.vue';
 import NotasVista from './NotasVista.vue';
 import '../assets/main.css'
+import CalendarioVista from './CalendarioVista.vue';
+import { ref } from 'vue';
+
+let mainContent=ref('Notes');
+
+const loadSection = (newContent)=>{
+    mainContent=newContent;
+    console.log(mainContent);
+    //VER PORQ NO CAMBIA EL RENDERIZADO CONDICIONAL
+}
 </script>
 
 <template>
     <HeaderComponent />
     <div class="main">
         <div id="sidebar">
-            <SidebarComponent />
+            <SidebarComponent @change-section="loadSection" />
         </div>
 
         <div id="content">
-            <NotasVista />
+            <CalendarioVista/>
+            <!--
+            <div v-if="mainContent=='Calendar'">
+                <CalendarioVista />
+            </div>
+            <div v-if="mainContent=='Notes'">
+                <NotasVista />
+            </div>
+            -->
         </div>
     </div>
     
@@ -34,6 +52,7 @@ import '../assets/main.css'
     width: 85dvw;
     height: calc(100dvh - 56px);
     background-color: var(--body-bg);
+    overflow-y: scroll;
 }
 
 @media only screen and (max-width: 992px) {
