@@ -1,9 +1,9 @@
 <script setup>
 import '../assets/main.css'
 
-const emit=defineEmits(['ChangeSection']);
+const emit = defineEmits(['ChangeSection']);
 
-function changeSection(newSection){
+function changeSection(newSection) {
     emit("ChangeSection", newSection);
 }
 </script>
@@ -12,30 +12,26 @@ function changeSection(newSection){
     <div class="container-fluid" id="sidebar" style="text-align: center;">
         <div class="sidebar_common_opt">
             <div class="row">
-                <button @click="()=>{changeSection('Notes')}">Notas</button>
+                <button @click="() => { changeSection('Notes') }">Notas</button>
             </div>
             <div class="row">
-                <button @click="()=>{changeSection('Diary')}">Diario</button>
+                <button @click="() => { changeSection('Diary') }">Diario</button>
             </div>
             <div class="row">
-                <button @click="()=>{changeSection('Calendar')}">Calendario</button>
+                <button @click="() => { changeSection('Calendar') }">Calendario</button>
             </div>
             <div class="row">
-                <button @click="()=>{changeSection('Buy')}">Comprar</button>
+                <button @click="() => { changeSection('ToDo') }">Tareas</button>
             </div>
         </div>
-
 
         <div class="row" id="premium_button">
             <button>Comprar Versión Premium</button>
         </div>
-
     </div>
 </template>
 
 <style scoped>
-
-
 #premium_button {
     align-items: flex-end;
 }
@@ -59,9 +55,9 @@ button {
 }
 
 @media only screen and (max-width: 992px) {
-    #sidebar{
-
-        .sidebar_common_opt, #premium_button{
+    #sidebar {
+        .sidebar_common_opt,
+        #premium_button {
             display: flex;
             justify-content: space-between;
             flex-direction: row;
@@ -72,21 +68,21 @@ button {
             row-gap: 30px;
         }
 
-        .sidebar_common_opt{
+        .sidebar_common_opt {
             padding-bottom: 0px;
         }
 
-        #premium_button{
+        #premium_button {
             margin: auto;
             width: 80%;
         }
 
-        .row{
+        .row {
             width: 30%;
         }
     }
 
-    button{
+    button {
         border-radius: 15px;
         font-size: 3vw;
     }

@@ -5,13 +5,13 @@ import NotasVista from './NotasVista.vue';
 import '../assets/main.css'
 import CalendarioVista from './CalendarioVista.vue';
 import { ref } from 'vue';
+import DiarioVista from './DiarioVista.vue';
+import TareasVista from './TareasVista.vue';
 
 let mainContent=ref('Notes');
 
 const loadSection = (newContent)=>{
-    mainContent=newContent;
-    console.log(mainContent);
-    //VER PORQ NO CAMBIA EL RENDERIZADO CONDICIONAL
+    mainContent.value=newContent;
 }
 </script>
 
@@ -21,23 +21,31 @@ const loadSection = (newContent)=>{
         <div id="sidebar">
             <SidebarComponent @change-section="loadSection" />
         </div>
-
+        
         <div id="content">
-            <CalendarioVista/>
-            <!--
             <div v-if="mainContent=='Calendar'">
                 <CalendarioVista />
             </div>
             <div v-if="mainContent=='Notes'">
                 <NotasVista />
             </div>
-            -->
+            <div v-if="mainContent=='Diary'">
+                <DiarioVista />
+            </div>
+            <div v-if="mainContent=='ToDo'">
+                <TareasVista />
+            </div>
         </div>
+    
     </div>
     
 </template>
 
 <style scoped>
+*{
+    font-family: Rubik;
+}
+
 .main{
     display: flex;
 }
@@ -52,7 +60,11 @@ const loadSection = (newContent)=>{
     width: 85dvw;
     height: calc(100dvh - 56px);
     background-color: var(--body-bg);
-    overflow-y: scroll;
+    overflow-y: auto;
+}
+
+.fc-daygrid-day{
+    background-color: red;
 }
 
 @media only screen and (max-width: 992px) {

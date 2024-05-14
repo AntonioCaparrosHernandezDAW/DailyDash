@@ -28,14 +28,22 @@ class LoginRegisterController extends Controller
             "remember_token" => $rememberToken,
         ]);
 
-        return response($rememberToken);        
+        $prueba = DB::table("usuarios")->where('remember_token', $rememberToken)->first();
+
+        return response()->json([
+            'token'=>$rememberToken,
+            'prueba'=>$prueba
+        ]);    
     }
 
     public function login(Request $request){
         $user = DB::table("usuarios")->where("email", $request->input("email"))->first();
 
         if ($user && Hash::check($request->input("password"), $user->password)) {
-            return response()->json(["id" => $user->id]);
+            return response()->json([
+                "user" => $user->email,
+                "token" => $user->remember_token
+            ]);       
         } else {
             return response()->json(["error" => "Credenciales inválidas"], 401);
         }

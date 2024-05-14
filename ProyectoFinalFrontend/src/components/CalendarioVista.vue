@@ -6,9 +6,9 @@ import interactionPlugin from '@fullcalendar/interaction'
 import esLocale from '@fullcalendar/core/locales/es'
 import { ref } from 'vue';
 
-let toDoDate=ref('');
-let toDoIntervalStart=ref('');
-let toDoIntervalEnd=ref('');
+let toDoDate = ref('');
+let toDoIntervalStart = ref('');
+let toDoIntervalEnd = ref('');
 let toDoTitle = ref('');
 
 export default {
@@ -20,8 +20,8 @@ export default {
             calendarOptions: {
                 plugins: [dayGridPlugin, interactionPlugin, timeGridPlugin],
                 initialView: 'dayGridMonth',
-                locales: [esLocale], 
-                locale: 'es', 
+                locales: [esLocale],
+                locale: 'es',
                 height: '90dvh',
                 width: '60dvw',
                 headerToolbar: {
@@ -33,11 +33,12 @@ export default {
                 events: [
                     {
                         title: "Prueba",
-                        start: '2024-04-14',     
+                        start: '2024-04-14',
                         end: '2024-04-17'   //Si no es un rango de tiempo solo hay que poner start
                     }
                 ],
-                dayRender: function(date, cell){ cell.css("background", "red") }
+                dayRender: function (date, cell) { cell.css("background", "red") },
+                //selectable: "true",
             }
         }
     },
@@ -94,7 +95,6 @@ export default {
 
 
     <div class="calendarView">
-        <h1>CALENDARIO</h1>
         <FullCalendar :options="calendarOptions" class="calendar" />
     </div>
 
@@ -146,7 +146,8 @@ export default {
 /* FIN FORMULARIO */
 
 .calendarView {
-
-    padding: 20px 200px;
+    height: calc(100dvh - 56px);
+    padding: 0px 200px;
+    margin: 50px 0px;
 }
 </style>

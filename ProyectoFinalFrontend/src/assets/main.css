@@ -4,4 +4,27 @@
     --button: #ffbc9b;
 
     --navbar: #ff894f;
+    --fc-border-color: rgb(163, 163, 163);
+    --fc-button-hover-bg-color: #1e2b37;    /* ESTO ES EL COLOR AL HACER HOVER A LOS BOTONES DE ARRIBA (MES, SEMANA, DIA, ETC) */
+
+}
+
+@font-face {
+    /*TEXTOS*/
+	font-family: Poppins;
+	src: url("./Poppins/Poppins-Regular.ttf");
+}
+
+@font-face {
+    /*TÍTULOS*/
+	font-family: Rubik;
+	src: url("./Rubik/static/Rubik-Regular.ttf");
+}
+
+h1, h2, h3{
+    font-family:Rubik;
+}
+
+p, input, a{
+    font-family: Poppins;
 }

@@ -15,4 +15,14 @@ Route::controller(Controllers\LoginRegisterController::class)->group(function ()
 
 Route::controller(Controllers\NoteController::class)->group(function (){
     Route::post('/createNote', 'createNote');
+    Route::post('/listNotes', 'listNotes');
+});
+
+Route::controller(Controllers\DiaryController::class)->group(function (){
+    Route::post('/updateDiaryEntry', 'updateDiaryEntry');
+    Route::post('/getDiaryEntry', 'getDiaryEntry');
+});
+
+Route::controller(Controllers\UserController::class)->group(function (){
+    Route::post('/getUserByToken', 'getUserByToken');
 });

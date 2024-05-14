@@ -1,23 +1,77 @@
 <script setup>
 import { ref } from 'vue';
+import NoteComponent from './NoteComponent.vue';
+
+let notesToLoad = ref([]);
+let loading = ref(true); 
 
 let note = {
-    idUser: "1",
+    idUser: 0,
     noteTitle: ref(''),
     noteText: ref('')
 }
 
-let notesToLoad;
-async function loadNotes(){
-    //Poner en notes to load el resultado de un fetch para recoger las notas de la BBDD y luego mostrarlas con el v-for
+async function loadUserId() {
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json(); 
+            return data.userId.id
+        } else {
+            return 0;
+        }
+    } catch (error) {
+        return 0;
+    }
+}
+
+async function loadNotes() {
+    console.log("Las notas del usuario estan siendo cargadas...")
+
+    let userToken = localStorage.getItem("userToken")
+    const body = {
+        token: userToken
+    }
+
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listNotes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (respuesta.ok) {
+            console.log("deberían cargar")
+            const data = await respuesta.json();
+            notesToLoad=data.notes
+            loading.value = false;
+        } else {
+            console.log("Ha ocurrido un error al cargar las notas");
+            loading.value = false;
+        }
+    } catch (error) {
+        console.error('Error al cargar las notas:', error);
+        loading.value = false;
+    }
 }
 loadNotes();
 
 const createNote = async () => {
+    note.idUser=await loadUserId()
     note.noteText = note.noteText.value;
     note.noteTitle = note.noteTitle.value;
 
-    console.log(JSON.stringify(note));
+    console.log("Creando: ", note)
+
     const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createNote', {
         method: 'POST',
         headers: {
@@ -28,15 +82,17 @@ const createNote = async () => {
 
     if (respuesta.ok) {
         const data = await respuesta.json();
-        console.log(data);
+        document.getElementById('closeNoteButton').click();
+        loading.value=true;
+        loadNotes();
     } else {
         console.error('Error en la petición:', respuesta.statusText);
     }
 }
 
 const clearNote = () => {
-    noteTitle.value = '';
-    noteText.value = '';
+    note.noteTitle = ref('');
+    note.noteText = ref('');
 }
 </script>
 
@@ -58,7 +114,7 @@ const clearNote = () => {
                     <textarea v-model="note.noteText.value"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeNoteButton"
                         @click="clearNote">Cerrar</button>
                     <button type="button" class="btn btn-primary" @click="createNote">Guardar</button>
                 </div>
@@ -67,19 +123,38 @@ const clearNote = () => {
     </div>
     <!--MODAL END-->
 
+
     <div class="notasMain">
         <button class="btn btn-primary createNoteButton" data-bs-toggle="modal" data-bs-target="#createNoteBox">Nueva
             Nota</button>
         <hr>
-        <div class="note_table">
-            <div v-for="(note, index) of notesToLoad" v-bind="index">
-                <p>{{ note.idUser }}</p>
+
+        <div v-if="loading" class="loading-message">
+            <p>Cargando notas...</p>
+        </div>
+
+        <div v-if="!loading" class="note_table">
+            <div v-for="(note, index) in notesToLoad" :key="index">
+                <NoteComponent :idUser="note.idUser" :title=note.title :text=note.text />
             </div>
         </div>
     </div>
 </template>
 
+
 <style scoped>
+.loading-message {
+    text-align: center;
+}
+
+.note_table {
+    display: flex;
+    justify-content: space-around;
+    padding: 3dvh 10dvw;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
 /* FORMULARIO */
 .inputTitulo {
     width: 100%;
@@ -137,9 +212,9 @@ textarea {
 /* FIN FORMULARIO */
 
 .notasMain {
-    width: 100%;
-    height: 100%;
+    height: calc(100dvh - 56px);
     box-sizing: border-box;
+    overflow-y: hidden;
 }
 
 .createNoteButton {

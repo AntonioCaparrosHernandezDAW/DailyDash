@@ -20,4 +20,20 @@ class NoteController extends Controller
             'status'=>'nota creada Correctamente'
         ]);
     }
+
+    public function listNotes(Request $request){
+        $user = DB::table('usuarios')
+            ->where('remember_token',$request['token'])
+            ->first();
+
+        $notesList = DB::table('notes')
+            ->where('idUser',$user->id)
+            ->get();
+
+        return response()->json([
+            "notes"=>$notesList
+        ]);
+    }
 }
+
+//       
