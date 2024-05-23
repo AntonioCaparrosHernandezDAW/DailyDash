@@ -7,8 +7,30 @@ let prioridadCrear = ref('');
 let fechaInicioCrear = ref('');
 let fechaFinCrear = ref('');
 
+async function loadUserId() {
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json(); 
+            return data.userId.id
+        } else {
+            return 0;
+        }
+    } catch (error) {
+        return 0;
+    }
+}
+
 const crearTarea = async () => {
-    let tareaCrear = computed(() => ({
+    let tareaCrear = computed( async () => ({
+        userId: await loadUserId(),
         titulo: tituloCrear.value,
         prioridad: prioridadCrear.value,
         fechaInicio: fechaInicioCrear.value,
@@ -16,6 +38,25 @@ const crearTarea = async () => {
     }));
 
     console.log(tareaCrear.value);
+
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(tareaCrear)
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json(); 
+            console.log("Data: ",data)
+        } else {
+            console.log("Ha ocurrido un error al crear la tarea")
+        }
+    } catch (error) {
+        console.log("Ha ocurrido un error al crear la tarea: ",error)
+    }
 }
 
 let tareas = [
@@ -41,8 +82,7 @@ let tareas = [
     { "id": 24, "title": "Llamar al electricista", "prioridad": "Media", "fechaInicio": "2024-05-12", "fechaFin": "2024-05-12" },
     { "id": 25, "title": "Hacer ejercicio", "prioridad": "Alta", "fechaInicio": "2024-05-16", "fechaFin": "2024-05-16" },
     { "id": 26, "title": "Leer un libro", "prioridad": "Baja", "fechaInicio": "2024-05-20", "fechaFin": "2024-05-25" }
-]
-    ;
+];
 </script>
 
 <template>

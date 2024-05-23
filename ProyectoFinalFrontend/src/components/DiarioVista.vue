@@ -4,15 +4,8 @@ import { ref } from 'vue';
 let diaryText=ref('');
 let loading = ref(true);
 
-const today = new Date();
-let yyyy = today.getFullYear();
-let mm = today.getMonth() + 1;
-let dd = today.getDate();
-
-if (dd < 10) dd = '0' + dd;
-if (mm < 10) mm = '0' + mm;
-
-const formattedToday = yyyy+'-'+mm+'-'+dd;
+let formattedToday = new Date().toISOString().slice(0,10)
+console.log("Prueba: ",formattedToday)
 
 async function loadUserId() {
     try {
@@ -35,12 +28,11 @@ async function loadUserId() {
     }
 }
 
-async function loadDiaryEntry(){
+async function loadDiaryEntry(dateToLoad){
     let loadPost={
         idUser:await loadUserId(),
-        date:formattedToday
+        date:dateToLoad
     }
-    console.log(loadPost)
 
     const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getDiaryEntry', {
         method: 'POST',
@@ -51,7 +43,6 @@ async function loadDiaryEntry(){
     });
 
     if (respuesta.ok) {
-        console.log("Cargando los datos del usuario "+loadPost.idUser)
         const data = await respuesta.json();
         diaryText.value=data.text;
     } else {
@@ -60,7 +51,7 @@ async function loadDiaryEntry(){
     
     loading.value=false;
 }
-loadDiaryEntry();
+loadDiaryEntry(formattedToday);
 
 const saveDiaryEntry = async ()=>{
     let diaryInfo={
@@ -81,32 +72,45 @@ const saveDiaryEntry = async ()=>{
         const data = await respuesta.json();
         console.log(data)
     } else {
-        console.error('Error en la petición:', respuesta.statusText);
+        console.error('Error en la petición:', respuesta.error);
     }
-    
+}
+
+function changeDay(value){
+    const auxDate = new Date(formattedToday)
+    auxDate.setDate(auxDate.getDate() + (value))
+    formattedToday= auxDate.toISOString().slice(0,10)
+    document.querySelector(".diaryDate").value=formattedToday
+    loadDiaryEntry(formattedToday)
 }
 </script>
 
 <template>
     <div>
-        <div v-if="loading">
-            <p>Cargando...</p>
+        <div v-if="loading" id="diaryLogin">
+            <p>Cargando diario...</p>
         </div>
 
         <div id="diary" v-else="loading">
             <div class="dateBlock">
-                <img src="./img/arrowLeft.png" alt="arrow left" width="50px" height="50px">
-                <input class="diaryDate" type="date" v-bind:value="formattedToday"><br>
-                <img src="./img/arrowLeft.png" alt="arrow left" width="50px" height="50px" style="transform: rotate(180deg);">
+                <img src="./img/arrowLeft.png" alt="arrow left" width="50px" height="50px" @click="changeDay(-1)">
+                <input class="diaryDate" type="date" v-model="formattedToday"><br>
+                <img src="./img/arrowLeft.png" alt="arrow left" width="50px" height="50px" style="transform: rotate(180deg);" @click="changeDay(1)">
             </div>
-            <textarea v-on:focusout="saveDiaryEntry" v-bind:value="diaryText">
-            
-            </textarea>
+            <textarea v-on:focusout="saveDiaryEntry" v-model="diaryText"></textarea>
         </div>
     </div>
 </template>
 
 <style scoped>
+#diaryLogin{
+    display: block;
+    width: 200px;
+    text-align: center;
+    margin: auto;
+    margin-top: 10dvh;
+}
+
 h1 {
     text-align: center;
     margin: 5dvh 0px;

@@ -1,7 +1,10 @@
 <script setup>
 import '../assets/main.css'
+import PremiumBanner from './PremiumBanner.vue'
+import { ref } from 'vue';
 
 const emit = defineEmits(['ChangeSection']);
+let showPremiumBanner = ref(false);
 
 function changeSection(newSection) {
     emit("ChangeSection", newSection);
@@ -26,8 +29,10 @@ function changeSection(newSection) {
         </div>
 
         <div class="row" id="premium_button">
-            <button>Comprar Versión Premium</button>
+            <button @click="showPremiumBanner = !showPremiumBanner">Comprar Versión Premium</button>
         </div>
+
+        <PremiumBanner v-if="showPremiumBanner" />
     </div>
 </template>
 

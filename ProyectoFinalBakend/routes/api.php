@@ -26,3 +26,7 @@ Route::controller(Controllers\DiaryController::class)->group(function (){
 Route::controller(Controllers\UserController::class)->group(function (){
     Route::post('/getUserByToken', 'getUserByToken');
 });
+
+Route::controller(Controllers\ToDoController::class)->group(function (){
+    Route::post('/createToDo', 'createToDo');
+});

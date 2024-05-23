@@ -50,17 +50,16 @@ async function loadNotes() {
         });
 
         if (respuesta.ok) {
-            console.log("deberían cargar")
             const data = await respuesta.json();
             notesToLoad=data.notes
             loading.value = false;
         } else {
             console.log("Ha ocurrido un error al cargar las notas");
-            loading.value = false;
+            //loading.value = false;
         }
     } catch (error) {
         console.error('Error al cargar las notas:', error);
-        loading.value = false;
+        //loading.value = false;
     }
 }
 loadNotes();
@@ -82,6 +81,7 @@ const createNote = async () => {
 
     if (respuesta.ok) {
         const data = await respuesta.json();
+        //console.log(data)
         document.getElementById('closeNoteButton').click();
         loading.value=true;
         loadNotes();
@@ -122,7 +122,6 @@ const clearNote = () => {
         </div>
     </div>
     <!--MODAL END-->
-
 
     <div class="notasMain">
         <button class="btn btn-primary createNoteButton" data-bs-toggle="modal" data-bs-target="#createNoteBox">Nueva

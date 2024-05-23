@@ -55,6 +55,7 @@ export default {
     }
 }
 </script>
+
 <template>
     <!--MODAL-->
     <div class="modal fade" id="createNoteBox">

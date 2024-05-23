@@ -4,7 +4,7 @@ import SidebarComponent from './SidebarComponent.vue';
 import NotasVista from './NotasVista.vue';
 import '../assets/main.css'
 import CalendarioVista from './CalendarioVista.vue';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import DiarioVista from './DiarioVista.vue';
 import TareasVista from './TareasVista.vue';
 
@@ -12,11 +12,21 @@ let mainContent=ref('Notes');
 
 const loadSection = (newContent)=>{
     mainContent.value=newContent;
+    localStorage.setItem('sectionLoad', newContent)
 }
+
+onMounted(()=>{
+    const sectionLoad = localStorage.getItem('sectionLoad');
+    if(sectionLoad !== null && sectionLoad !== 'null'){
+        mainContent.value = sectionLoad;
+    }else{
+        mainContent.value='Notes';
+    }
+})
 </script>
 
 <template>
-    <HeaderComponent />
+    <HeaderComponent @change-section="loadSection" />
     <div class="main">
         <div id="sidebar">
             <SidebarComponent @change-section="loadSection" />
@@ -36,9 +46,7 @@ const loadSection = (newContent)=>{
                 <TareasVista />
             </div>
         </div>
-    
     </div>
-    
 </template>
 
 <style scoped>

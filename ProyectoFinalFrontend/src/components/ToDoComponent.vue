@@ -46,7 +46,7 @@ const completarTarea = ()=>{
         <div class="titulo">
             <p v-if="!editando">{{ propsIniciales.titulo }}</p>
             <input type="text" v-else class="titleChangeInput" v-model="tituloEditado">
-        </div>
+        </div>  
         <div class="prioridad">
             <p v-if="!editando">{{ propsIniciales.prioridad }}</p>
             <select v-else v-model="prioridadEditada">

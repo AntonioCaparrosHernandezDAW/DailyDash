@@ -1,12 +1,21 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import router from '../router/index.js'
+
+const emit = defineEmits(['ChangeSection']);
+
+function changeSection(newSection) {
+    localStorage.setItem('sectionLoad', newSection)
+    emit("ChangeSection", newSection);
+    router.push('/panel')
+}
 </script>
 
 <template>
     <header>
         <div class="navbar navbar-expand-lg navbar">
             <div class="container-fluid">
-                <a href="#" class="navbar-brand">DailyDash</a>
+                <RouterLink to="/panel" class="navbar-brand">DailyDash</RouterLink >
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#collapseNavbarContent">
@@ -29,37 +38,39 @@ import { RouterLink, RouterView } from 'vue-router'
                             <a href="#" class="nav-link dropdown-toggle">Funciones</a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <RouterLink to="/perfil" class="dropdown-item">Notas</RouterLink>
+                                    <a href="#" @click="() => { changeSection('Notes') }" class="dropdown-item">Notas</a>
                                 </li>
                                 <li>
-                                    <RouterLink to="#" class="dropdown-item">Diario</RouterLink>
+                                    <a href="#" @click="() => { changeSection('Diary') }" class="dropdown-item">Diario</a>
                                 </li>
                                 <li>
-                                    <RouterLink to="#" class="dropdown-item">Calendario</RouterLink>
+                                    <a href="#" @click="() => { changeSection('Calendar') }" class="dropdown-item">Calendario</a>
+                                </li>
+                                <li>
+                                    <a href="#" @click="() => { changeSection('ToDo') }" class="dropdown-item">Tareas</a>
                                 </li>
                             </ul>
                         </li>
                     </ul>
-                    <ul class="navbar-nav me-auto" id="userOptUl">
+                    <ul class="navbar-nav" id="userOptUl">
                     <div id="userOptDiv">
                         <li class="nav-item dropdown" data-bs-toggle="dropdown">
-                            <img src="./img/2.jpeg" width="30px" height="30px" />
+                            <img src="./img/user.png" class="profilePic" />
                             <ul class="dropdown-menu" id="userOptDropdown">
                                 <li>
-                                    <RouterLink to="/login" class="dropdown-item">Desconectar</RouterLink>
+                                    <a href="#" @click="()=>{ router.push('/login') }" class="dropdown-item">Desconectar</a>
                                 </li>
                                 <li>
-                                    <RouterLink to="/perfil" class="dropdown-item">Perfil</RouterLink>
+                                    <a href="#" @click="()=>{ router.push('/perfil') }" class="dropdown-item">Perfil</a>
                                 </li>
                                 <li>
-                                    <RouterLink to="#" class="dropdown-item">Opciones</RouterLink>
+                                    <a href="#" class="dropdown-item">Opciones</a>
                                 </li>
                             </ul>
                         </li>
                     </div>
                 </ul>
-                </div>
-                
+                </div>  
             </div>
         </div>
     </header>
@@ -67,6 +78,14 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <style scoped>
+.profilePic{
+    width: 32px;
+    height: 32px;
+    border: 1px solid black;
+    border-radius: 50%;
+    padding: 1px;
+}
+
 #userOptDropdown{
     /*NO SIRVE EN TABLETS*/
     left: -6.7dvw;

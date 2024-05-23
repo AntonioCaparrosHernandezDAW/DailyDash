@@ -8,36 +8,30 @@ use Illuminate\Support\Facades\DB;
 class DiaryController extends Controller
 {
     public function updateDiaryEntry(Request $request){
-        $jsonData = $request->json()->all();
+        $idUser = $request['idUser'] ?? null;
+        $date = $request['date'] ?? null;
+        $text = $request['text'] ?? null;
 
-        // Validar y obtener datos del JSON
-        $idUser = $jsonData['idUser'] ?? null;
-        $date = $jsonData['date'] ?? null;
-        $text = $jsonData['text'] ?? null;
-
-        // Verificar si los datos necesarios están presentes
         if (!$idUser || !$date || !$text) {
-            return response()->json(['error' => 'Faltan datos requeridos en la solicitud.'], 400);
+        return response()->json(['message' => 'Faltan datos requeridos en la solicitud.']/*, 400*/);
         }
 
         $existingEntry = DB::table('diary')
             ->where('idUser', $idUser)
-            ->where('date', $date) // Usamos directamente la fecha del JSON
+            ->where('date', $date) 
             ->first();
 
         if ($existingEntry) {
-            // Si la entrada existe, actualizar el texto
             DB::table('diary')
                 ->where('idUser', $idUser)
-                ->where('date', $date) // Usamos directamente la fecha del JSON
+                ->where('date', $date)
                 ->update(['text' => $text]);
 
             return response()->json(['message' => 'Entrada de diario actualizada correctamente.'], 200);
         } else {
-            // Si la entrada no existe, crear una nueva entrada
             DB::table('diary')->insert([
                 'idUser' => $idUser,
-                'date' => $date, // Usamos directamente la fecha del JSON
+                'date' => $date, 
                 'text' => $text,
             ]);
 

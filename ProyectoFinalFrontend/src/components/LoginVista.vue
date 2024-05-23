@@ -120,7 +120,7 @@ let showChangePasswordBox = ref(false);
         <div class="container-sm loginRegisterBox" v-if="!showPaswordRememberBox">
             <section class="login_options">
                 <div class="login_title">
-                    <img src="./img/2.jpeg" width="50px" height="50px" />
+                    <!--<img src="./img/2.jpeg" width="50px" height="50px" />-->
                     <h1 style="font-size: 40px; margin-left: 10px">DailyDash</h1>
                 </div>
 

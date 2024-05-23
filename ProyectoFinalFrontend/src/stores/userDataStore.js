@@ -1,3 +1,5 @@
+//NO USADO
+
 import { defineStore } from 'pinia';
 
 export const userDataStore = defineStore('myStore', {
