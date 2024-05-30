@@ -157,76 +157,136 @@
 </template>
 
 <style scoped>
-.sectionTitle{
-    text-align: center;
-    margin: 50px 0px;
-}
-
-#bloques {
-    width: 80dvw;
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    height: 30dvh;
-    flex-grow: 1;
-    flex-wrap: wrap;
-
-    .bloque {
-        outline: 1px solid black;
-        width: 23%;
-        height: 100%;
-        text-align: center;
-        box-sizing: border-box;
-        padding: 1%;
-        overflow: auto;
-        /* CUANDO NO QUEPA CAMBIA EL FLEX DIRECTION A COLUMN */
-    }
+/* Mejoras generales */
+body {
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
 }
 
 .navbar {
-    background-color: rgb(255, 171, 14);
+    background-color: #ffab0e;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #fff;
+}
+
+.nav-link {
+    color: #fff;
+}
+
+.nav-link:hover {
+    color: #ddd;
 }
 
 .empiezaBoton {
-    background-color: yellowgreen;
+    background-color: #8bc34a;
+    color: #fff;
     display: block;
-    width: 10dvw;
-    margin: 4dvh auto;
-    padding: 1%;
-    border: 1px solid green;
-    border-radius: 18%;
-    font-size: 1.5dvw;
+    width: 200px;
+    margin: 20px auto;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.empiezaBoton:hover {
+    background-color: #7cb342;
+}
+
+.sectionTitle {
+    text-align: center;
+    margin: 50px 0;
+    font-size: 2.5em;
+    color: #444;
+}
+
+#bloques {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.bloque {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: calc(25% - 20px);
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bloque:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bloque h1 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+
+.bloque p {
+    font-size: 1em;
+    line-height: 1.5;
 }
 
 section {
-    width: 64dvw;
-    margin: 6dvh auto;
+    width: 70%;
+    margin: 60px auto;
     display: flex;
-    gap: 3dvw;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
     flex-wrap: wrap;
+}
 
-    & img{
-        width: 30dvw;
-        height: 30dvh;
-    }
+section img {
+    width: 45%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-    .texto {
-        width: calc(50% - 1.5dvw);
-        padding: 2%;
-    }
+section .texto {
+    width: 50%;
+}
+
+.sectionTitle {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #ffab0e;
 }
 
 .eslogan {
-    width: 40dvw;
+    width: 60%;
     text-align: center;
-    margin: 8dvh auto 0px auto;
-
-    & h1 {
-        font-size: 3.5dvw;
-    }
-
-    & h2{
-        font-size: 2dvw;
-    }
+    margin: 100px auto 50px;
 }
+
+.eslogan h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+.eslogan h2 {
+    font-size: 1.5em;
+    color: #666;
+}
+
 </style>

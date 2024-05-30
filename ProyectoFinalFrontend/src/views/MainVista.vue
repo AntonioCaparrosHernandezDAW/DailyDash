@@ -1,12 +1,22 @@
 <script setup> 
-import HeaderComponent from './HeaderComponent.vue';
-import SidebarComponent from './SidebarComponent.vue';
-import NotasVista from './NotasVista.vue';
 import '../assets/main.css'
-import CalendarioVista from './CalendarioVista.vue';
 import { onMounted, ref } from 'vue';
-import DiarioVista from './DiarioVista.vue';
-import TareasVista from './TareasVista.vue';
+import HeaderComponent from '../components/HeaderComponent.vue';
+import SidebarComponent from '../components/SidebarComponent.vue';
+/*
+import NotasVista from '../components/NotasVista.vue';
+import CalendarioVista from '../components/CalendarioVista.vue';
+import DiarioVista from '../components/DiarioVista.vue';
+import TareasVista from '../components/TareasVista.vue';
+*/
+//Cargar los componentes de forma asíncrona según los voy necesitando así no carga todos de golpe
+import { defineAsyncComponent } from 'vue';
+
+const NotasVista = defineAsyncComponent(() => import('../components/NotasVista.vue'));
+const CalendarioVista = defineAsyncComponent(() => import('../components/CalendarioVista.vue'));
+const DiarioVista = defineAsyncComponent(() => import('../components/DiarioVista.vue'));
+const TareasVista = defineAsyncComponent(() => import('../components/TareasVista.vue'));
+
 
 let mainContent=ref('Notes');
 
@@ -23,6 +33,13 @@ onMounted(()=>{
         mainContent.value='Notes';
     }
 })
+
+const componenteMostrar = {
+    'Notes': NotasVista,
+    'Diary': DiarioVista,
+    'Calendar': CalendarioVista,
+    'ToDo': TareasVista
+}
 </script>
 
 <template>
@@ -33,6 +50,7 @@ onMounted(()=>{
         </div>
         
         <div id="content">
+            <!--
             <div v-if="mainContent=='Calendar'">
                 <CalendarioVista />
             </div>
@@ -45,6 +63,8 @@ onMounted(()=>{
             <div v-if="mainContent=='ToDo'">
                 <TareasVista />
             </div>
+        -->
+            <component :is="componenteMostrar[mainContent]" />
         </div>
     </div>
 </template>

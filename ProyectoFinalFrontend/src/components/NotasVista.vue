@@ -1,15 +1,26 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import NoteComponent from './NoteComponent.vue';
 
 let notesToLoad = ref([]);
-let loading = ref(true); 
-
+let loading = ref(true);
+let idEditingNote;
+let editando = ref(false);
 let note = {
     idUser: 0,
     noteTitle: ref(''),
     noteText: ref('')
 }
+
+onMounted(async () => {
+    note.idUser = await loadUserId()
+    loadNotes()
+    try{
+        document.getElementById('createNoteBox').addEventListener('hidden.bs.modal', clearNote)
+    }catch(error){
+        //NotasVista se monta
+    }
+})
 
 async function loadUserId() {
     try {
@@ -22,8 +33,8 @@ async function loadUserId() {
         });
 
         if (respuesta.ok) {
-            const data = await respuesta.json(); 
-            return data.userId.id
+            const data = await respuesta.json();
+            return data.userId
         } else {
             return 0;
         }
@@ -34,6 +45,7 @@ async function loadUserId() {
 
 async function loadNotes() {
     console.log("Las notas del usuario estan siendo cargadas...")
+    loading.value = true;
 
     let userToken = localStorage.getItem("userToken")
     const body = {
@@ -51,48 +63,84 @@ async function loadNotes() {
 
         if (respuesta.ok) {
             const data = await respuesta.json();
-            notesToLoad=data.notes
+            notesToLoad = data.notes
             loading.value = false;
         } else {
             console.log("Ha ocurrido un error al cargar las notas");
-            //loading.value = false;
+            alert("Ha ocurrido un error al cargar las notas");
         }
     } catch (error) {
         console.error('Error al cargar las notas:', error);
-        //loading.value = false;
+        alert("Ha ocurrido un error al cargar las notas");
     }
 }
-loadNotes();
 
 const createNote = async () => {
-    note.idUser=await loadUserId()
-    note.noteText = note.noteText.value;
-    note.noteTitle = note.noteTitle.value;
+    let noteToCreate = {
+        idUser: note.idUser,
+        noteTitle: note.noteTitle.value,
+        noteText: note.noteText.value
+    }
 
-    console.log("Creando: ", note)
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createNote', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(noteToCreate)
+        });
 
-    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createNote', {
+        if (respuesta.ok) {
+            document.getElementById('closeNoteButton').click();
+            loading.value = true;
+            loadNotes();
+        } else {
+            console.error('Error en la petición:', respuesta.statusText);
+        }
+    } catch (error) {
+        console.error('Error al crear la nota:', error);
+    }
+}
+
+function clearNote() {
+    note.noteTitle.value = "";
+    note.noteText.value = "";
+    editando.value = false;
+}
+
+const mostrarNota = (editingNote) => {
+    editando.value = true;
+    idEditingNote = editingNote.idNote;
+    note.noteTitle.value = editingNote.title;
+    note.noteText.value = editingNote.text;
+    document.getElementById('openCreateNoteButton').click();
+}
+
+const saveNoteChanges = async () => {
+    const editedNote = {
+        idNote: idEditingNote,
+        idUser: note.idUser,
+        title: note.noteTitle.value,
+        text: note.noteText.value
+    }
+
+    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateNote', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(note)
+        body: JSON.stringify(editedNote)
     });
 
     if (respuesta.ok) {
         const data = await respuesta.json();
-        //console.log(data)
+        console.log(data.status)
+        loadNotes()
         document.getElementById('closeNoteButton').click();
-        loading.value=true;
-        loadNotes();
     } else {
         console.error('Error en la petición:', respuesta.statusText);
     }
-}
-
-const clearNote = () => {
-    note.noteTitle = ref('');
-    note.noteText = ref('');
 }
 </script>
 
@@ -102,7 +150,8 @@ const clearNote = () => {
         <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
-                    <h1 class="modal-title fs-2">Crear Nota</h1>
+                    <h1 class="modal-title fs-2" v-if="!editando">Crear Nota</h1>
+                    <h1 class="modal-title fs-2" v-else>Modificar Nota</h1>
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -116,7 +165,8 @@ const clearNote = () => {
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeNoteButton"
                         @click="clearNote">Cerrar</button>
-                    <button type="button" class="btn btn-primary" @click="createNote">Guardar</button>
+                    <button type="button" class="btn btn-primary" v-if="!editando" @click="createNote">Guardar</button>
+                    <button type="button" class="btn btn-primary" v-else @click="saveNoteChanges">Editar</button>
                 </div>
             </div>
         </div>
@@ -124,7 +174,8 @@ const clearNote = () => {
     <!--MODAL END-->
 
     <div class="notasMain">
-        <button class="btn btn-primary createNoteButton" data-bs-toggle="modal" data-bs-target="#createNoteBox">Nueva
+        <button class="btn btn-primary createNoteButton" id="openCreateNoteButton" data-bs-toggle="modal"
+            data-bs-target="#createNoteBox">Nueva
             Nota</button>
         <hr>
 
@@ -134,7 +185,8 @@ const clearNote = () => {
 
         <div v-if="!loading" class="note_table">
             <div v-for="(note, index) in notesToLoad" :key="index">
-                <NoteComponent :idUser="note.idUser" :title=note.title :text=note.text />
+                <NoteComponent :idUser="note.idUser" :title=note.title :text=note.text :idNote="note.idNote"
+                    @mostrar-nota="mostrarNota" @nota-borrada="loadNotes" />
             </div>
         </div>
     </div>

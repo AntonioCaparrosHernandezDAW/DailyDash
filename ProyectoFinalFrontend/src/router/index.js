@@ -6,22 +6,22 @@ const router = createRouter({
     {
       path: '/',
       name: 'inicio',
-      component: ()=> import('@/views/InicioVista.vue')
+      component: ()=> import('../views/InicioVista.vue')
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/components/LoginVista.vue')
+      component: () => import('../views/LoginVista.vue')
     },
     {
       path: '/panel',
       name: 'panel',
-      component: () => import('@/components/MainVista.vue')
+      component: () => import('../views/MainVista.vue')
     },
     {
       path: '/perfil',
       name: 'perfil',
-      component: () => import('@/components/PerfilVista.vue')
+      component: () => import('../views/PerfilVista.vue')
     },
     {
       path: '/prueba',

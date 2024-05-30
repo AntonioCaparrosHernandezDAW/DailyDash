@@ -4,16 +4,122 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'
 import esLocale from '@fullcalendar/core/locales/es'
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
-let toDoDate = ref('');
-let toDoIntervalStart = ref('');
-let toDoIntervalEnd = ref('');
+let toDoStart = ref('');
+let toDoEnd = ref('');
 let toDoTitle = ref('');
+let toDoPriority = ref('Baja');
+let toDoDate = ref('');
+let toDoList=ref('');;
+
+//No lo puedo meter rn methods porq ni idea de ocmo hacerla async
+async function loadToDos() {
+    let userToken = localStorage.getItem("userToken")
+    const body = {
+        token: userToken
+    }
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            return data.todos;
+        } else {
+            console.log("Ha ocurrido un error al cargar las tareas");
+            //loading.value = false;
+        }
+    } catch (error) {
+        console.error('Error al cargar las tareas:', error);
+        //loading.value = false;
+    }
+}
 
 export default {
     components: {
         FullCalendar
+    },
+    setup() {
+        let coloresPrioridad = {
+            "Baja": "#6ACD00",
+            "Media": "#CD6300",
+            "Alta": "#CD0000"
+        }
+
+        let tareasCargar = ref([])
+
+        onMounted(async () => {
+            toDoList.value = await loadToDos()
+            //console.log("Paco: ", toDoList.value)
+            toDoList.value.map((toDo) => {
+                tareasCargar.value.push({
+                    title: toDo.titulo,
+                    start: toDo.fechaInicio,
+                    end: toDo.fechaFin,
+                    color: coloresPrioridad[toDo.prioridad]
+                })
+            })
+            //console.log("Completo?: ", tareasCargar)
+        });
+
+        const cargarModal = (info) => {
+            const date = new Date(info.date);
+            const year = date.getFullYear();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2);
+            const day = ('0' + date.getDate()).slice(-2);
+            toDoDate.value = `${year}-${month}-${day}`;
+            toDoStart.value = toDoDate.value;
+            toDoEnd.value = toDoDate.value;
+            //console.log(toDoDate.value);
+            document.querySelector(".createNoteButton").click();
+        }
+
+        const crearTarea = async () => {
+            let body = {
+                userToken: localStorage.getItem("userToken"),
+                titulo: toDoTitle.value,
+                prioridad: toDoPriority.value,
+                fechaInicio: toDoStart.value,
+                fechaFin: toDoEnd.value
+            }
+
+            try {
+                const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (respuesta.ok) {
+                    const data = await respuesta.json();
+                    await loadToDos();
+                    
+                } else {
+                    console.log("Ha ocurrido un error al crear la tarea")
+                }
+            } catch (error) {
+                console.log("Ha ocurrido un error al crear la tarea: ", error)
+            }
+        }
+
+        return {
+            tareasCargar,
+            cargarModal,
+            crearTarea,
+            toDoTitle,
+            toDoPriority,
+            toDoStart,
+            toDoEnd,
+            toDoDate
+        }
     },
     data() {
         return {
@@ -25,32 +131,14 @@ export default {
                 height: '90dvh',
                 width: '60dvw',
                 headerToolbar: {
-                    start: 'dayGridMonth,timeGridWeek,timeGridDay',
+                    start: 'dayGridMonth,timeGridWeek', /* timeGridDay */
                     center: 'title',
                     end: 'prev,today,next'
                 },
                 dateClick: this.cargarModal,
-                events: [
-                    {
-                        title: "Prueba",
-                        start: '2024-04-14',
-                        end: '2024-04-17'   //Si no es un rango de tiempo solo hay que poner start
-                    }
-                ],
-                dayRender: function (date, cell) { cell.css("background", "red") },
-                //selectable: "true",
+                events: this.tareasCargar,
+                //selectable: "true",   Esto ya es muy complicado, hacer de ampliación
             }
-        }
-    },
-    methods: {
-        cargarModal(info) {
-            toDoDate = info.date.toLocaleDateString('es-ES', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }).split('/').join('-');
-            console.log(toDoDate);
-            document.querySelector(".createNoteButton").click();
         }
     }
 }
@@ -62,30 +150,30 @@ export default {
         <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
-                    <h1 class="modal-title fs-2">Crear Nota</h1>
+                    <h1 class="modal-title fs-2">Crear Tarea</h1>
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <!--FORMULARIO-->
-                    <input type="text" class="inputTitulo" placeholder="Título">
+                    <input type="text" class="inputTitulo" placeholder="Título" v-model="toDoTitle" />
                     <label class="labelTitulo">Título: </label>
 
-                    <label>Tipo de tarea: </label><br>
-                    <select>
-                        <option>Fecha</option>
-                        <option>Intervalo de tiempo</option>
+                    <label><b>Prioridad:</b></label><br>
+                    <select style="margin-bottom: 4%;" v-model="toDoPriority">
+                        <option value="Baja">Baja</option>
+                        <option value="Media">Media</option>
+                        <option value="Alta">Alta</option>
                     </select>
                     <br>
-                    <label>Fecha:</label><br>
-                    <input type="date" v-model="toDoDate">
-                    <br>
-                    <label>Intervalo: </label><br>
-                    <input type="date" v-model="toDoDate">
-                    <input type="date" v-model="toDoIntervalEnd">
+                    <label><b>Fecha: </b></label><br>
+                    <label>Desde: </label>
+                    <input type="date" style="margin: 0px 5% 0px 1%;" v-model="toDoStart" :value="toDoDate">
+                    <label>Hasta: </label>
+                    <input type="date" style="margin-left: 1%;" v-model="toDoEnd">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-primary" @click="crearTarea">Guardar</button>
                 </div>
             </div>
         </div>

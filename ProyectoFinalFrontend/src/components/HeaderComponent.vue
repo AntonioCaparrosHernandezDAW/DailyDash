@@ -1,13 +1,27 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import router from '../router/index.js'
+import { onMounted } from 'vue';
 
 const emit = defineEmits(['ChangeSection']);
+
+onMounted(()=>{
+    if(localStorage.getItem('userToken')==null || localStorage.getItem('userToken')=='null'){
+        unlogUser()
+    }     
+})
 
 function changeSection(newSection) {
     localStorage.setItem('sectionLoad', newSection)
     emit("ChangeSection", newSection);
     router.push('/panel')
+}
+
+function unlogUser(){
+    localStorage.setItem('sectionLoad', 'Notes')
+    localStorage.setItem('userToken', null)
+    localStorage.setItem('userEmail', null)
+    router.push('/login')
 }
 </script>
 
@@ -55,10 +69,10 @@ function changeSection(newSection) {
                     <ul class="navbar-nav" id="userOptUl">
                     <div id="userOptDiv">
                         <li class="nav-item dropdown" data-bs-toggle="dropdown">
-                            <img src="./img/user.png" class="profilePic" />
+                            <img src="../../public/FotoPerfil/user32.png" class="profilePic" />
                             <ul class="dropdown-menu" id="userOptDropdown">
                                 <li>
-                                    <a href="#" @click="()=>{ router.push('/login') }" class="dropdown-item">Desconectar</a>
+                                    <a href="#" @click="unlogUser" class="dropdown-item">Desconectar</a>
                                 </li>
                                 <li>
                                     <a href="#" @click="()=>{ router.push('/perfil') }" class="dropdown-item">Perfil</a>

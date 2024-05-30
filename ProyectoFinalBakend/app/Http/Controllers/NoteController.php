@@ -34,6 +34,35 @@ class NoteController extends Controller
             "notes"=>$notesList
         ]);
     }
-}
 
-//       
+    public function updateNote(Request $request){
+        $noteId = $request['idNote'];
+        $updated = DB::table('notes')
+            ->where('idNote', $noteId)
+            ->update([
+                'title' => $request['title'],
+                'text' => $request['text']
+            ]);
+
+        return response()->json([
+            'status' => 'nota actualizada correctamente'
+        ]);
+    }
+
+    public function deleteNote(Request $request){
+        $noteId = $request['idNote'];
+        $deleted = DB::table('notes')
+            ->where('idNote', $noteId)
+            ->delete();
+
+        if ($deleted) {
+            return response()->json([
+                'status' => 'nota eliminada correctamente'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error al eliminar la nota'
+            ]);
+        }
+    }
+}

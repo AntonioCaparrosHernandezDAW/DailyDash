@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import ToDoComponent from './ToDoComponent.vue'
 
 let tituloCrear = ref('');
@@ -7,6 +7,10 @@ let prioridadCrear = ref('');
 let fechaInicioCrear = ref('');
 let fechaFinCrear = ref('');
 
+let tareas = ref([]);
+let loading = ref(true);
+
+/*
 async function loadUserId() {
     try {
         const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
@@ -18,8 +22,8 @@ async function loadUserId() {
         });
 
         if (respuesta.ok) {
-            const data = await respuesta.json(); 
-            return data.userId.id
+            const data = await respuesta.json();
+            return data.userId
         } else {
             return 0;
         }
@@ -27,17 +31,19 @@ async function loadUserId() {
         return 0;
     }
 }
+*/
 
 const crearTarea = async () => {
-    let tareaCrear = computed( async () => ({
-        userId: await loadUserId(),
+    loading.value = true;
+
+    let tareaCrear = {
+        userToken: localStorage.getItem("userToken"),
+        //userId: await loadUserId(),
         titulo: tituloCrear.value,
         prioridad: prioridadCrear.value,
         fechaInicio: fechaInicioCrear.value,
         fechaFin: fechaFinCrear.value
-    }));
-
-    console.log(tareaCrear.value);
+    };
 
     try {
         const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
@@ -49,40 +55,50 @@ const crearTarea = async () => {
         });
 
         if (respuesta.ok) {
-            const data = await respuesta.json(); 
-            console.log("Data: ",data)
+            const data = await respuesta.json();
+            await loadToDos();
+            loading.value=false;
         } else {
             console.log("Ha ocurrido un error al crear la tarea")
         }
     } catch (error) {
-        console.log("Ha ocurrido un error al crear la tarea: ",error)
+        console.log("Ha ocurrido un error al crear la tarea: ", error)
     }
 }
 
-let tareas = [
-    { "id": 1, "title": "Comprar leche", "prioridad": "Baja", "fechaInicio": "2020-11-13", "fechaFin": "2021-07-14" },
-    { "id": 2, "title": "Entrenar", "prioridad": "Media", "fechaInicio": "2019-07-23", "fechaFin": "2022-07-15" },
-    { "id": 3, "title": "Ir al médico", "prioridad": "Alta", "fechaInicio": "2023-02-05", "fechaFin": "2023-02-06" },
-    { "id": 4, "title": "Estudiar para el examen", "prioridad": "Media", "fechaInicio": "2024-03-10", "fechaFin": "2024-03-15" },
-    { "id": 5, "title": "Hacer la compra", "prioridad": "Baja", "fechaInicio": "2024-04-20", "fechaFin": "2024-04-21" },
-    { "id": 6, "title": "Enviar correo electrónico", "prioridad": "Alta", "fechaInicio": "2024-05-03", "fechaFin": "2024-05-03" },
-    { "id": 7, "title": "Preparar presentación", "prioridad": "Media", "fechaInicio": "2024-05-08", "fechaFin": "2024-05-10" },
-    { "id": 8, "title": "Llamar al electricista", "prioridad": "Baja", "fechaInicio": "2024-05-12", "fechaFin": "2024-05-12" },
-    { "id": 9, "title": "Hacer ejercicio", "prioridad": "Baja", "fechaInicio": "2024-05-16", "fechaFin": "2024-05-16" },
-    { "id": 10, "title": "Leer un libro", "prioridad": "Media", "fechaInicio": "2024-05-20", "fechaFin": "2024-05-25" },
-    { "id": 15, "title": "Hacer la compra", "prioridad": "Alta", "fechaInicio": "2024-04-20", "fechaFin": "2024-04-21" },
-    { "id": 16, "title": "Enviar correo electrónico", "prioridad": "Alta", "fechaInicio": "2024-05-03", "fechaFin": "2024-05-03" },
-    { "id": 17, "title": "Preparar presentación", "prioridad": "Alta", "fechaInicio": "2024-05-08", "fechaFin": "2024-05-10" },
-    { "id": 18, "title": "Llamar al electricista", "prioridad": "Media", "fechaInicio": "2024-05-12", "fechaFin": "2024-05-12" },
-    { "id": 19, "title": "Hacer ejercicio", "prioridad": "Media", "fechaInicio": "2024-05-16", "fechaFin": "2024-05-16" },
-    { "id": 20, "title": "Leer un libro", "prioridad": "Media", "fechaInicio": "2024-05-20", "fechaFin": "2024-05-25" },
-    { "id": 21, "title": "Hacer la compra", "prioridad": "Baja", "fechaInicio": "2024-04-20", "fechaFin": "2024-04-21" },
-    { "id": 22, "title": "Enviar correo electrónico", "prioridad": "Baja", "fechaInicio": "2024-05-03", "fechaFin": "2024-05-03" },
-    { "id": 23, "title": "Preparar presentación", "prioridad": "Baja", "fechaInicio": "2024-05-08", "fechaFin": "2024-05-10" },
-    { "id": 24, "title": "Llamar al electricista", "prioridad": "Media", "fechaInicio": "2024-05-12", "fechaFin": "2024-05-12" },
-    { "id": 25, "title": "Hacer ejercicio", "prioridad": "Alta", "fechaInicio": "2024-05-16", "fechaFin": "2024-05-16" },
-    { "id": 26, "title": "Leer un libro", "prioridad": "Baja", "fechaInicio": "2024-05-20", "fechaFin": "2024-05-25" }
-];
+async function loadToDos() {
+    loading.value = true;
+    console.log("Las tareas del usuario estan siendo cargadas...")
+
+    let userToken = localStorage.getItem("userToken")
+    const body = {
+        token: userToken
+    }
+
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            tareas = data.todos;
+            loading.value = false;
+        } else {
+            console.log("Ha ocurrido un error al cargar las notas");
+            //loading.value = false;
+        }
+    } catch (error) {
+        console.error('Error al cargar las notas:', error);
+        //loading.value = false;
+    }
+}
+loadToDos();
+
 </script>
 
 <template>
@@ -116,9 +132,16 @@ let tareas = [
                 <button @click="crearTarea">Crear</button>
             </div>
         </div>
-        <div v-for="(tarea, key) in tareas" :key="key">
-            <ToDoComponent :titulo="tarea.title" :prioridad="tarea.prioridad" :fecha-inicio="tarea.fechaInicio"
-                :fecha-fin="tarea.fechaFin" />
+
+        <div v-if="loading" class="loading-message">
+            <p>Cargando tareas...</p>
+        </div>
+
+        <div v-if="!loading" class="todo_table">
+            <div v-for="(tarea, key) in tareas" :key="key">
+                <ToDoComponent :titulo="tarea.titulo" :prioridad="tarea.prioridad" :fecha-inicio="tarea.fechaInicio"
+                    :fecha-fin="tarea.fechaFin" :completada="tarea.completada" @reload-to-dos="loadToDos" />
+            </div>
         </div>
     </div>
 </template>

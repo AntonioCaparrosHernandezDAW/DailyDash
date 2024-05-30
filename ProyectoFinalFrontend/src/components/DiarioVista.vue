@@ -4,8 +4,8 @@ import { ref } from 'vue';
 let diaryText=ref('');
 let loading = ref(true);
 
-let formattedToday = new Date().toISOString().slice(0,10)
-console.log("Prueba: ",formattedToday)
+let formattedLoadedDay = new Date().toISOString().slice(0,10)
+let currentDate = new Date().toISOString().slice(0, 10);
 
 async function loadUserId() {
     try {
@@ -19,7 +19,7 @@ async function loadUserId() {
 
         if (respuesta.ok) {
             const data = await respuesta.json(); 
-            return data.userId.id
+            return data.userId
         } else {
             return 0;
         }
@@ -51,12 +51,12 @@ async function loadDiaryEntry(dateToLoad){
     
     loading.value=false;
 }
-loadDiaryEntry(formattedToday);
+loadDiaryEntry(formattedLoadedDay);
 
 const saveDiaryEntry = async ()=>{
     let diaryInfo={
         idUser:await loadUserId(),
-        date:formattedToday,
+        date:formattedLoadedDay,
         text:diaryText.value
     }
 
@@ -76,12 +76,17 @@ const saveDiaryEntry = async ()=>{
     }
 }
 
-function changeDay(value){
-    const auxDate = new Date(formattedToday)
-    auxDate.setDate(auxDate.getDate() + (value))
-    formattedToday= auxDate.toISOString().slice(0,10)
-    document.querySelector(".diaryDate").value=formattedToday
-    loadDiaryEntry(formattedToday)
+function changeDay(value) {
+    const auxDate = new Date(formattedLoadedDay);
+    auxDate.setDate(auxDate.getDate() + value);
+
+    if (auxDate.toISOString().slice(0, 10) > currentDate) {
+        return;
+    }
+
+    formattedLoadedDay = auxDate.toISOString().slice(0, 10);
+    document.querySelector(".diaryDate").value = formattedLoadedDay;
+    loadDiaryEntry(formattedLoadedDay);
 }
 </script>
 
@@ -93,9 +98,9 @@ function changeDay(value){
 
         <div id="diary" v-else="loading">
             <div class="dateBlock">
-                <img src="./img/arrowLeft.png" alt="arrow left" width="50px" height="50px" @click="changeDay(-1)">
-                <input class="diaryDate" type="date" v-model="formattedToday"><br>
-                <img src="./img/arrowLeft.png" alt="arrow left" width="50px" height="50px" style="transform: rotate(180deg);" @click="changeDay(1)">
+                <img src="../assets/img/arrowRight.png" alt="arrow left" width="50px" height="50px" style="transform: rotate(180deg);" @click="changeDay(-1)">
+                <input class="diaryDate" type="date" v-model="formattedLoadedDay" :max="currentDate"><br>
+                <img src="../assets/img/arrowRight.png" alt="arrow right" width="50px" height="50px" @click="changeDay(1)">
             </div>
             <textarea v-on:focusout="saveDiaryEntry" v-model="diaryText"></textarea>
         </div>
@@ -103,52 +108,78 @@ function changeDay(value){
 </template>
 
 <style scoped>
-#diaryLogin{
+#diaryLogin {
     display: block;
     width: 200px;
     text-align: center;
     margin: auto;
-    margin-top: 10dvh;
+    margin-top: 10vh;
 }
 
 h1 {
     text-align: center;
-    margin: 5dvh 0px;
+    margin: 5vh 0;
 }
 
-.dateBlock{
-    width: 20dvw;
+.dateBlock {
+    width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.dateBlock img {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.dateBlock img:hover {
+    transform: scale(1.1);
 }
 
 #diary {
     padding: 3%;
-    outline: 1px solid green;
-    width: 65dvw;
-    height: 80dvh;
-    margin: 7dvh auto;
-    background-color: rgb(254, 227, 201);
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 60vw;
+    height: 70vh;
+    margin: 10vh auto;
+    background-color: #fef0e3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
+}
 
-    & input{
-        font-size: 30px;
-        text-align: center;
-    }
+#diary input {
+    font-size: 20px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+}
 
-    & textarea {
-        resize: none;
-        width: 100%;
-        height: 90%;
-        background-color: rgb(254, 227, 201);
-        border: 0px;
-        padding: 0px;
-    }
+#diary textarea {
+    resize: none;
+    width: 100%;
+    height: 80%;
+    background-color: #fef0e3;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
 
-    & textarea:target{
-        border: 0px;
-    }
+#diary textarea:focus {
+    outline: none;
+    border-color: #ffb74d;
+    background-color: #fff;
+}
+
+#diary textarea::placeholder {
+    color: #aaa;
 }
 </style>

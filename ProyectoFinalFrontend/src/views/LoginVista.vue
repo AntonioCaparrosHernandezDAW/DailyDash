@@ -38,7 +38,6 @@ const registrarUsuario = async () => {
         });
 
         const data = await respuesta.json();
-        console.log(data)
         succesfulUserRegisterAlertDisplay = "flex";
 
     } catch (error) {
@@ -69,9 +68,11 @@ const logearUsuario = async () => {
 
     const data = await respuesta.json();
     if (data.user) {
+        console.log(data.user)
         console.log("Login correcto. Redirigiendo...");
         localStorage.setItem('userEmail', data.user)
         localStorage.setItem('userToken', data.token)
+        localStorage.setItem('sectionLoad', 'Notes')
         router.push("/panel");
     } else {
         failedUserLoginAlertDisplay = "flex";
@@ -148,7 +149,7 @@ let showChangePasswordBox = ref(false);
         </div>
 
         <div class="container-sm passwordRememberBox" v-if="showPaswordRememberBox">
-            <img src="./img/arrowLeft.png" alt="Botón atras" width="50px" height="50px"
+            <img src="../assets/img/arrowRight.png" alt="Botón atras" width="50px" height="50px" style="transform: rotate(180deg);"
                 @click="showPaswordRememberBox = !showPaswordRememberBox">
             <form class="emailToRememberBox">
                 <label>Correo electrónico: </label>

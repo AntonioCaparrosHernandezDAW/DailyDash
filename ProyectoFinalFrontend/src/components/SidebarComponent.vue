@@ -53,43 +53,47 @@ function changeSection(newSection) {
 button {
     width: 100%;
     height: 100%;
-    padding: 20px;
-    font-size: 1.5vw;
+    padding: 2dvh;
+    font-size: 1.2em;
     background-color: var(--button);
     border: 1px solid rgba(136, 136, 136, 0.192);
 }
 
 @media only screen and (max-width: 992px) {
     #sidebar {
-        .sidebar_common_opt,
-        #premium_button {
-            display: flex;
-            justify-content: space-between;
-            flex-direction: row;
-            padding: 30px;
-            box-sizing: border-box;
-            flex-wrap: wrap;
-            gap: 15px;
-            row-gap: 30px;
-        }
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+    }
 
-        .sidebar_common_opt {
-            padding-bottom: 0px;
-        }
+    .sidebar_common_opt, #premium_button {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
 
-        #premium_button {
-            margin: auto;
-            width: 80%;
-        }
-
-        .row {
-            width: 30%;
-        }
+    .row {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 45%;
+        margin: 1dvh;
     }
 
     button {
-        border-radius: 15px;
-        font-size: 3vw;
+        font-size: 3dvw;
+        padding: 1dvh;
+    }
+
+    #premium_button {
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    #premium_button button {
+        width: 80%;
     }
 }
 </style>

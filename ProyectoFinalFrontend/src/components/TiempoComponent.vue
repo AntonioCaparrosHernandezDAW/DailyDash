@@ -21,7 +21,7 @@ const props = defineProps({
 */
 const props = {
     cityName: 'Madrid',
-    selectedDate: '2024-05-20'
+    selectedDate: '2024-05-27'
 }
 
 const apiKey = '7a7fc674ccb250c106ae7d0744bfbcb6';

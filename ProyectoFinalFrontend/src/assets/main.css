@@ -6,7 +6,25 @@
     --navbar: #ff894f;
     --fc-border-color: rgb(163, 163, 163);
     --fc-button-hover-bg-color: #1e2b37;    /* ESTO ES EL COLOR AL HACER HOVER A LOS BOTONES DE ARRIBA (MES, SEMANA, DIA, ETC) */
+}
 
+/* Celdas del cuerpo del calendario */
+.fc-daygrid-day {
+    background-color: #c7c7c7;
+}
+
+/* Celdas de cabedera del calendario */
+.fc-col-header-cell-cushion {
+    background-color: #b0b0b0;
+    width: 100%;
+    text-decoration: none;
+    color: #191612;
+}
+
+/* Días del calendario */
+.fc-daygrid-day-number {
+    text-decoration: none;
+    color: #3c3122;
 }
 
 @font-face {
