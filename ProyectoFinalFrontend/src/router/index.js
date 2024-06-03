@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import('../views/PerfilVista.vue')
     },
     {
+      path: '/pagoConfirmado',
+      name: 'pagoConfirmado',
+      component: () => import('../views/PagoConfirmadoVista.vue')
+    },
+    {
       path: '/prueba',
       name: 'prueba',
       component: () => import('@/components/TiempoComponent.vue')

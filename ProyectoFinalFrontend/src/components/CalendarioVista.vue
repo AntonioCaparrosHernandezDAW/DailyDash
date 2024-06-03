@@ -15,9 +15,8 @@ let toDoList=ref('');;
 
 //No lo puedo meter rn methods porq ni idea de ocmo hacerla async
 async function loadToDos() {
-    let userToken = localStorage.getItem("userToken")
     const body = {
-        token: userToken
+        token: localStorage.getItem("userToken")
     }
     try {
         const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {

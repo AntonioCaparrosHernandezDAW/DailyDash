@@ -5,6 +5,31 @@ onMounted(()=>{
     console.log("Montando")
     document.querySelector('#initModal').click();
 });
+
+async function reenvioPago(){
+    const body = {
+        userToken: localStorage.getItem("userToken")
+    }
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createPaymentToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            localStorage.setItem('pruebaPago', data.token)
+            window.location.href="https://buy.stripe.com/test_00g28x5apbA8cmscMN";
+        } else {
+            console.log("Ha ocurrido un error al cargar el pago");
+        }
+    } catch (error) {
+        console.error('Ha ocurrido un error al conectar con el servidor:', error);
+    }
+}
 </script>
 
 <template>
@@ -33,7 +58,7 @@ onMounted(()=>{
                                     <li>No es gratis</li>
                                 </ul>
                             </div>
-                            <button>Comprar</button>
+                            <a @click="reenvioPago"><button>Comprar</button></a>
                         </div>
                     </div>
                 </div>

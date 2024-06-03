@@ -7,7 +7,8 @@ const props = defineProps({
     text: String
 });
 
-const deletePost = async ()=>{
+const deletePost = async (event)=>{
+    event.stopPropagation(); //Esto evita que se abra tambien el modal al hacer click
     const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteNote', {
         method: 'POST',
         headers: {

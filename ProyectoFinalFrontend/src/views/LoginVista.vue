@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import router from '../router/index.js'
 
+let displayBox = ref('baseLogin');
+
 let loginEmail = ref('');
 let loginPassword = ref('');
 
@@ -9,11 +11,15 @@ let registerEmail = ref('');
 let registerPassword = ref('');
 let confPassword = ref('');
 
+let emailToSendRemember=ref('');
+let passwordCode=ref('');
+let newPassword=ref('')
+
 let succesfulUserRegisterAlertDisplay = "none";
 let failedUserRegisterAlertDisplay = "none";
 let failedUserLoginAlertDisplay = "none";
 
-function reiniciarAvisos(){
+function reiniciarAvisos() {
     succesfulUserRegisterAlertDisplay = "none";
     failedUserRegisterAlertDisplay = "none";
     failedUserLoginAlertDisplay = "none";
@@ -77,13 +83,64 @@ const logearUsuario = async () => {
     } else {
         failedUserLoginAlertDisplay = "flex";
         console.log(data.error);
-        loginEmail.value="";
-        loginPassword.value="";
+        loginEmail.value = "";
+        loginPassword.value = "";
     }
 }
 
-let showPaswordRememberBox = ref(false);
-let showChangePasswordBox = ref(false);
+async function sendEmailToRememberPassword() {
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/sendEmailToRemember', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email:emailToSendRemember.value })
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            console.log("correcto")
+            displayBox.value='rememberPasswordCode';
+        } else {
+            console.log("Ha ocurrido un error al cargar las tareas");
+            //loading.value = false;
+        }
+    } catch (error) {
+        console.error('Error al cargar las tareas:', error);
+        //loading.value = false;
+    }
+}
+
+async function changePassword(){
+    console.log("Cambiando")
+    const body={
+        email:emailToSendRemember.value,
+        code:passwordCode.value,
+        newPassword: newPassword.value
+    }
+    try {
+        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePasswordWithCode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            console.log("correcto", data)
+            displayBox.value='baseLogin';
+        } else {
+            console.log("Ha ocurrido un error al cargar las tareas");
+            //loading.value = false;
+        }
+    } catch (error) {
+        console.error('Error al cargar las tareas:', error);
+        //loading.value = false;
+    }
+}
 </script>
 
 <template>
@@ -96,7 +153,7 @@ let showChangePasswordBox = ref(false);
                 <h3>Registro Correcto</h3>
                 <p>El usuario ha sido registrado correctamente</p>
             </div>
-            <button type="button" class="btn-close" @click="succesfulUserRegisterAlertDisplay='none'"></button>
+            <button type="button" class="btn-close" @click="succesfulUserRegisterAlertDisplay = 'none'"></button>
         </div>
 
         <!--Failed Register-->
@@ -105,7 +162,7 @@ let showChangePasswordBox = ref(false);
                 <h3>Error al Registrar</h3>
                 <p>Ha ocurrido un error al registrar al usuario</p>
             </div>
-            <button type="button" class="btn-close" @click="failedUserRegisterAlertDisplay='none'"></button>
+            <button type="button" class="btn-close" @click="failedUserRegisterAlertDisplay = 'none'"></button>
         </div>
 
         <!--Failed Login-->
@@ -114,11 +171,11 @@ let showChangePasswordBox = ref(false);
                 <h3>Error al Autentificar</h3>
                 <p>Ha ocurrido un error al intentar autentificar al usuario</p>
             </div>
-            <button type="button" class="btn-close" @click="failedUserLoginAlertDisplay='none'"></button>
+            <button type="button" class="btn-close" @click="failedUserLoginAlertDisplay = 'none'"></button>
         </div>
         <!--END ALERTS-->
 
-        <div class="container-sm loginRegisterBox" v-if="!showPaswordRememberBox">
+        <div class="container-sm loginRegisterBox" v-if="displayBox == 'baseLogin'">
             <section class="login_options">
                 <div class="login_title">
                     <!--<img src="./img/2.jpeg" width="50px" height="50px" />-->
@@ -131,8 +188,8 @@ let showChangePasswordBox = ref(false);
                     <input type="password" v-model="loginPassword" placeholder="Contraseña" name="passLogin">
                     <input type="submit" class="btn btn-primary" value="Iniciar Sesión">
                 </form>
-                <a href="#" class="password_remember"
-                    @click="() => { showPaswordRememberBox = !showPaswordRememberBox }">¿Recordar Contraseña?</a>
+                <a href="#" class="password_remember" @click="() => { displayBox = 'rememberPasswordEmail' }">¿Recordar
+                    Contraseña?</a>
 
                 <hr style="margin: 30px 0px;">
 
@@ -148,24 +205,28 @@ let showChangePasswordBox = ref(false);
             </section>
         </div>
 
-        <div class="container-sm passwordRememberBox" v-if="showPaswordRememberBox">
-            <img src="../assets/img/arrowRight.png" alt="Botón atras" width="50px" height="50px" style="transform: rotate(180deg);"
-                @click="showPaswordRememberBox = !showPaswordRememberBox">
-            <form class="emailToRememberBox">
+        <!-- EMAIL REMEMBER PASO 1 -->
+        <div class="container-sm passwordRememberBox" v-else-if="displayBox == 'rememberPasswordEmail'">
+            <img src="../assets/img/arrowRight.png" alt="Botón atras" width="50px" height="50px"
+                style="transform: rotate(180deg);" @click="() => { displayBox = 'baseLogin' }">
+            <div class="emailToRememberBox">
                 <label>Correo electrónico: </label>
-                <input type="text">
-                <input type="submit" value="Enviar">
-            </form>
+                <input type="text" v-model="emailToSendRemember">
+                <input type="submit" value="Enviar" @click="sendEmailToRememberPassword">
+            </div>
         </div>
 
-        <div class="container-sm changePasswordBox" v-if="showChangePasswordBox">
-            <img src="./img/arrowLeft.png" alt="Botón atras" width="50px" height="50px"
-                @click="showPaswordRememberBox = !showPaswordRememberBox">
-            <form class="emailToRememberBox">
-                <label>CAAAAAAAAAAAAA: </label>
-                <input type="text">
-                <input type="submit" value="Enviar">
-            </form>
+        <!-- EMAIL REMEMBER PASO 2 -->
+        <div class="container-sm passwordRememberBox" v-else-if="displayBox == 'rememberPasswordCode'">
+            <img src="../assets/img/arrowRight.png" alt="Botón atras" width="50px" height="50px"
+                style="transform: rotate(180deg);" @click="() => { displayBox = 'rememberPasswordEmail' }">
+            <div class="emailToRememberBox">
+                <label>Código: </label>
+                <input type="text" v-model="passwordCode">
+                <label>Contraseña Nueva: </label>
+                <input type="text" v-model="newPassword">
+                <input type="submit" value="Enviar" @click="changePassword">
+            </div>
         </div>
     </div>
 </template>

@@ -43,6 +43,6 @@ h1, h2, h3{
     font-family:Rubik;
 }
 
-p, input, a, button{
+p, input, a, button, .nav-link{
     font-family: Poppins;
 }

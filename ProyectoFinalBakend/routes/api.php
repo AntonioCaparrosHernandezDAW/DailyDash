@@ -11,6 +11,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request){
 Route::controller(Controllers\LoginRegisterController::class)->group(function (){
     Route::post('/register', 'register');
     Route::post('/login', 'login');
+    Route::post('/sendEmailToRemember', 'sendEmailToRemember');
+    Route::post('/changePasswordWithCode', 'changePasswordWithCode');
 });
 
 Route::controller(Controllers\NoteController::class)->group(function (){
@@ -29,6 +31,9 @@ Route::controller(Controllers\UserController::class)->group(function (){
     Route::post('/getUserByToken', 'getUserByToken');
     Route::post('/changeUsername', 'changeUsername');
     Route::post('/changePassword', 'changePassword');
+    Route::post('/createPaymentToken', 'createPaymentToken');
+    Route::post('/checkPaymentToken', 'checkPaymentToken');
+    Route::post('/grantPremiumToUser', 'grantPremiumToUser');
 });
 
 Route::controller(Controllers\ToDoController::class)->group(function (){

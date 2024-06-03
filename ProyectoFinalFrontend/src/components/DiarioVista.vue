@@ -132,11 +132,6 @@ h1 {
 
 .dateBlock img {
     cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.dateBlock img:hover {
-    transform: scale(1.1);
 }
 
 #diary {

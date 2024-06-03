@@ -88,7 +88,14 @@ function clickImageManager(){
     document.getElementById('uploadImageInput').click();
 }
 
-let prueba= 'user100.jpg';
+function imageChangeManager(event){
+    console.log("change")
+    const imagen = event.target.files[0]
+
+    console.log(imagen)
+}
+
+let prueba= 'user100.png';
 
 onMounted(() => {
     loadUsername();
@@ -108,13 +115,13 @@ onMounted(() => {
             </div>
             <div id="changePassword">
                 <input placeholder="Contraseña Actual" v-model="oldPassword" type="password">
-                <input placeholder="Contraseña Anterior" v-model="newPassword" type="password">
-                <input placeholder="Repetir Contraseña Anterior" v-model="confirmedPassword" type="password">
+                <input placeholder="Nueva Contraseña" v-model="newPassword" type="password">
+                <input placeholder="Nueva Repetir Contraseña" v-model="confirmedPassword" type="password">
                 <button @click="changePassword">Cambiar Contraseña</button>
             </div>
         </div>
     </div>
-    <input type="file" id="uploadImageInput" hidden>
+    <input type="file" id="uploadImageInput" hidden @change="imageChangeManager">
 </template>
 
 <style scoped>

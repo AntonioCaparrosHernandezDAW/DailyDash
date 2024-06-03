@@ -82,4 +82,42 @@ class UserController extends Controller
             ]);
         }
     }
+
+    public function createPaymentToken(Request $request){
+        $user = DB::table('usuarios')
+            ->where('remember_token',$request['userToken'])
+            ->first();
+
+        $paymentToken = bin2hex(random_bytes(30));
+
+        DB::table('usuarios')
+            ->where('remember_token',$request['userToken'])
+            ->update([
+                    'token_pago'=>$paymentToken
+                ]); 
+
+        return response()->json([
+            'token'=>$paymentToken
+        ]);
+    }
+
+    public function checkPaymentToken(Request $request){
+        $user = DB::table('usuarios')
+            ->where('remember_token',$request['userToken'])
+            ->first();
+
+        return response()->json([
+            'resultado'=>$user->token_pago == $request['paymentToken'],
+            //'tokenIntroducido'=>$request['paymentToken'],
+            //'tokenReal'=>$user->token_pago
+        ]);
+    }
+
+    public function grantPremiumToUser(Request $request){
+        DB::table('usuarios')
+            ->where('remember_token',$request['userToken'])
+            ->update([
+                    'premium'=>1
+                ]); 
+    }
 }

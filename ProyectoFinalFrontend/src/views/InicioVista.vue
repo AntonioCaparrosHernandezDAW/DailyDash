@@ -1,16 +1,22 @@
 <script setup>
+import router from '../router/index.js'
 
+//Traslada al usuario a /login
+const moveToLogin = () => {
+    router.push('/login')
+}
 </script>
 
 <template>
+    <div id="inicio"></div>
+
     <!-- NAVBAR -->
     <div class="navbar navbar-expand-lg navbar">
         <div class="container-fluid">
-            <a href="#" class="navbar-brand">DailyDash</a>
+            <a href="#" class="navbar-brand"><b>DailyDash</b></a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#collapseNavbarContent">
-                <span class="navbar-toggler-icon" />
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNavbarContent">
+                <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="collapseNavbarContent">
@@ -27,7 +33,7 @@
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <RouterLink to="/login" class="nav-link">Empieza ahora</RouterLink>
+                        <button class="nav-link" @click="moveToLogin"><b>Empieza ahora</b></button>
                     </li>
                 </ul>
             </div>
@@ -42,9 +48,7 @@
     </div>
     <!-- FIN ESLOGAN -->
 
-    <button class="empiezaBoton">
-        Empieza ahora
-    </button>
+    <button class="empiezaBoton" @click="moveToLogin">Empieza ahora</button>
 
     <!-- PRESENTACIÓN FUNCIONALIDADES -->
     <h1 class="sectionTitle" id="funcionalidades">FUNCIONALIDADES</h1>
@@ -52,66 +56,49 @@
         <img src="../assets/img/muestraNotas.png" alt="Imagen de presentación de la sección 'notas'">
         <div class="texto">
             <h1>Notas</h1>
-            <p>
-                ¡Lleva tu organización al siguiente nivel con nuestra innovadora funcionalidad de notas! Diseñada
+            <p>¡Lleva tu organización al siguiente nivel con nuestra innovadora funcionalidad de notas! Diseñada
                 pensando en tu comodidad y productividad, esta herramienta te permite crear, editar y eliminar notas de
-                manera rápida y sencilla.
-            </p>
-            <p>
-                ¡Empieza a usar nuestra funcionalidad de notas hoy mismo y transforma la manera en que gestionas tu
-                información personal y profesional!
-            </p>
+                manera rápida y sencilla.</p>
+            <p>¡Empieza a usar nuestra funcionalidad de notas hoy mismo y transforma la manera en que gestionas tu
+                información personal y profesional!</p>
         </div>
     </section>
 
-    <section>
+    <section class="ordenInvertido">
+        <img src="../assets/img/muestraDiario.png" alt="Imagen de presentación de la sección 'diario'">
         <div class="texto">
             <h1>Diario</h1>
-            <p>
-                Nuestra funcionalidad de diario está diseñada para brindarte una manera rápida y sencilla de registrar
+            <p>Nuestra funcionalidad de diario está diseñada para brindarte una manera rápida y sencilla de registrar
                 tus días. Con una interfaz intuitiva y accesible, puedes documentar tus pensamientos, actividades y
                 emociones en cuestión de segundos. Olvídate de complicaciones y disfruta de una experiencia de usuario
                 fluida que te permite concentrarte en lo que realmente importa: capturar cada momento significativo de
-                tu vida.
-            </p>
+                tu vida.</p>
         </div>
-        <img src="../assets/img/muestraDiario.png" alt="Imagen de presentación de la sección 'diario'">
     </section>
 
     <section>
         <img src="../assets/img/muestraCalendario.png" alt="Imagen de presentación de la sección 'calendario'">
         <div class="texto">
             <h1>Calendario</h1>
-            <p>
-                ¡Lleva tu organización al siguiente nivel con nuestra innovadora funcionalidad de notas! Diseñada
+            <p>¡Lleva tu organización al siguiente nivel con nuestra innovadora funcionalidad de notas! Diseñada
                 pensando en tu comodidad y productividad, esta herramienta te permite crear, editar y eliminar notas de
-                manera rápida y sencilla.
-            </p>
-            <p>
-                ¡Empieza a usar nuestra funcionalidad de notas hoy mismo y transforma la manera en que gestionas tu
-                información personal y profesional!
-            </p>
+                manera rápida y sencilla.</p>
+            <p>¡Empieza a usar nuestra funcionalidad de notas hoy mismo y transforma la manera en que gestionas tu
+                información personal y profesional!</p>
         </div>
     </section>
 
-    <section>
+    <section class="ordenInvertido">
+        <img src="../assets/img/muestraTareas.png" alt="Imagen de presentación de la sección 'tareas'">
         <div class="texto">
             <h1>Tareas</h1>
-            <p>
-                ¡Lleva tu organización al siguiente nivel con nuestra innovadora funcionalidad de notas! Diseñada
+            <p>¡Lleva tu organización al siguiente nivel con nuestra innovadora funcionalidad de notas! Diseñada
                 pensando en tu comodidad y productividad, esta herramienta te permite crear, editar y eliminar notas de
-                manera rápida y sencilla.
-            </p>
-            <p>
-                Además, la accesibilidad es una prioridad. Con nuestro diario, puedes acceder a tus entradas en
+                manera rápida y sencilla.</p>
+            <p>Además, la accesibilidad es una prioridad. Con nuestro diario, puedes acceder a tus entradas en
                 cualquier momento y desde cualquier lugar. Mantén tus recuerdos y reflexiones organizados y siempre
-                disponibles, sin importar si estás en casa, en el trabajo o en movimiento. Nuestra funcionalidad de
-                diario no solo te ayuda a mantener un registro de tu vida, sino que también te proporciona una
-                herramienta poderosa para la auto-reflexión y el crecimiento personal, todo con la rapidez y sencillez
-                que mereces.
-            </p>
+                disponibles, sin importar si estás en casa, en el trabajo o en movimiento.</p>
         </div>
-        <img src="../assets/img/muestraTareas.png" alt="Imagen de presentación de la sección 'tareas'">
     </section>
     <!-- FIN PRESENTACIÓN FUNCIONALIDADES -->
 
@@ -149,100 +136,58 @@
     </div>
     <!-- FIN SECCIÓN BLOQUES -->
 
-    <!-- EMPIEZA AHORA -->
-    <button class="empiezaBoton">
-        Empieza ahora
-    </button>
-    <!-- FIN EMPIEZA AHORA -->
+    <button class="empiezaBoton" @click="moveToLogin" style="margin-bottom: 10dvh;">Empieza ahora</button>
 </template>
 
 <style scoped>
-/* Mejoras generales */
 body {
-    font-family: Arial, sans-serif;
-    color: #333;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
+    background-color: #eaeaea;
 }
 
 .navbar {
-    background-color: #ffab0e;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--navbar);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.338);
+    position: sticky;
+    top: 0px;
 }
 
-.navbar-brand {
-    font-weight: bold;
-    color: #fff;
+.eslogan {
+    width: 60%;
+    text-align: center;
+    margin: 100px auto 50px;
 }
 
-.nav-link {
-    color: #fff;
+.eslogan h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #1f1f1f;
 }
 
-.nav-link:hover {
-    color: #ddd;
+.eslogan h2 {
+    font-size: 1.5em;
+    color: #6a6a6a;
 }
 
 .empiezaBoton {
-    background-color: #8bc34a;
+    background-color: #0d6efd;
     color: #fff;
     display: block;
-    width: 200px;
+    min-width: 12dvw;
     margin: 20px auto;
     padding: 15px 20px;
     border: none;
     border-radius: 25px;
-    font-size: 18px;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    font-size: 25px;
 }
 
 .empiezaBoton:hover {
-    background-color: #7cb342;
+    background-color: #0c59cd;
 }
 
 .sectionTitle {
     text-align: center;
-    margin: 50px 0;
+    margin: 10dvh 0;
     font-size: 2.5em;
-    color: #444;
-}
-
-#bloques {
-    width: 80%;
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.bloque {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    width: calc(25% - 20px);
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.bloque:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.bloque h1 {
-    font-size: 1.5em;
-    margin-bottom: 15px;
-}
-
-.bloque p {
-    font-size: 1em;
-    line-height: 1.5;
 }
 
 section {
@@ -256,10 +201,10 @@ section {
 }
 
 section img {
-    width: 45%;
+    width: 100%;
+    max-width: 45%;
     height: auto;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 section .texto {
@@ -272,21 +217,69 @@ section .texto {
     color: #ffab0e;
 }
 
-.eslogan {
-    width: 60%;
-    text-align: center;
-    margin: 100px auto 50px;
+.ordenInvertido{
+    flex-direction: row-reverse;
 }
 
-.eslogan h1 {
-    font-size: 3em;
-    margin-bottom: 20px;
-    color: #444;
+#bloques {
+    width: 80%;
+    margin: 20px auto 7dvh auto;
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
 }
 
-.eslogan h2 {
-    font-size: 1.5em;
-    color: #666;
+.bloque {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: calc(25% - 20px);
+    min-width: 300px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.31);
+    transition: all 0.33s ease;
+
+    & h1 {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+    }
 }
 
+.bloque:hover {
+    transform: translateY(-5px);
+}
+
+@media only screen and (max-width: 1144px) {
+    section, .ordenInvertido {
+        width: 90%;
+        margin: 60px auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    section img {
+        width: 100%;
+        max-width: 55%;
+        height: auto;
+        border-radius: 10px;
+    }
+
+    section .texto {
+        width: 75%;
+    }
+
+    .sectionTitle {
+        font-size: 2em;
+        margin-bottom: 20px;
+        color: #ffab0e;
+    }
+}
+
+@media only screen and (max-width: 775px) {
+    #bloques{
+        width: 300px;
+        margin: auto;
+    }
+}
 </style>

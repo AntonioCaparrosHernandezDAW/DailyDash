@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RememberPasswordCodeEmail;
 
 class LoginRegisterController extends Controller
 {
@@ -61,6 +63,45 @@ class LoginRegisterController extends Controller
             return response()->json(
                 ["error" => "Credenciales inválidas"]
             );
+        }
+    }
+
+    public function sendEmailToRemember(Request $request){
+        //Comprobar email
+
+        $token_password= bin2hex(random_bytes(30));
+
+        $user = DB::table("usuarios")
+        ->where("email", $request["email"])
+        ->update([
+            'token_password'=>$token_password
+        ]);
+
+        Mail::to('antonioclasedaw@gmail.com')->send(new RememberPasswordCodeEmail($token_password));
+        return response()->json([
+            "resultado" => "ok"
+        ]);
+    }
+
+    public function changePasswordWithCode(Request $request){
+        $user = DB::table("usuarios")
+        ->where("email", $request["email"])
+        ->first();
+
+        if($user->token_password == $request['code']){
+            $user = DB::table("usuarios")
+                ->where("email", $request["email"])
+                ->update([
+                    'password'=> Hash::make($request['newPassword'])
+                ]);
+
+            return response()->json([
+                "resultado" => "Contraseña actualizada correctamente"
+            ]);
+        }else{
+            return response()->json([
+                "resultado" => "Error al cambiar la contraseña"
+            ]);
         }
     }
 }
