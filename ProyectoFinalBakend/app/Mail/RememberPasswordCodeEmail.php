@@ -30,9 +30,9 @@ class RememberPasswordCodeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('DailyDashSupport@gmail.com', 'DailyDash'),
+            from: new Address('dailydashcontacto@gmail.com', 'DailyDash'),
             replyTo: [
-                new Address('antonioclasedaw@gmail.com', 'ReplyToNoseQueEsEsto')
+                new Address('dailydashcontacto@gmail.com', 'ReplyToDailyDash')
             ],
             subject: 'Remember Password Code Email',
         );

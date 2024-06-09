@@ -1,15 +1,26 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import HeaderComponent from '../components/HeaderComponent.vue';
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 
 let username = ref('');
 let oldPassword = ref('')
 let newPassword = ref('')
 let confirmedPassword = ref('')
+let userProfilePic = ref('user100.png');
+let loadingImage = ref(false);
 
+//Función necesaria para cargar en el perfil el nombre de usuario mediante una llamada al servidor
 async function loadUsername() {
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -17,18 +28,25 @@ async function loadUsername() {
             body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
+        if (response.ok) {
+            const data = await response.json();
             username.value = data.username;
         } else {
-            console.log("Ha ocurrido un error al cargar el usuario")
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error en la petición:', error);
-        failedUserRegisterAlertDisplay = "flex";
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 
+//Contacta con el servidor para realizar la modificación del nombre de usuario y muestra el resultado por pantalla
 const editUsername = async () => {
     const body = {
         userToken: localStorage.getItem("userToken"),
@@ -36,7 +54,7 @@ const editUsername = async () => {
     }
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changeUsername', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changeUsername', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -44,27 +62,38 @@ const editUsername = async () => {
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            console.log("Respuesta: ", data)
+        if(response.ok){
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
         } else {
-            console.log("Ha ocurrido un error al cargar las notas");
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error al cargar las notas: ', error);
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 };
 
+//Contacta con el servidor para realizar la modificación de la contraseña y muestra el resultado por pantalla
 const changePassword = async () => {
     const body = {
         userToken: localStorage.getItem("userToken"),
         oldPassword: oldPassword.value,
         newPassword: newPassword.value,
-        confirmedPassword: confirmedPassword.value,
+        newPassword_confirmation: confirmedPassword.value,
     }
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePassword', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePassword', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -72,42 +101,116 @@ const changePassword = async () => {
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            console.log("Respuesta: ", data)
+        if (response.ok) {
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
         } else {
-            console.log("Ha ocurrido un error al cambiar la contraseña del usuario");
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error al conectar con el servidor: ', error);
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
+
+    oldPassword.value = oldPassword.value;
+    newPassword.value = newPassword.value;
+    newPassword_confirmation.value = confirmedPassword.value;
 };
 
-function clickImageManager(){
-    console.log("click")
+function clickImage(){
     document.getElementById('uploadImageInput').click();
 }
 
-function imageChangeManager(event){
-    console.log("change")
+async function changeImage(event){
     const imagen = event.target.files[0]
 
-    console.log(imagen)
+    const body = new FormData();
+    body.append('profilePic', imagen);
+    body.append('userToken', localStorage.getItem("userToken"));
+
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changeProfilePicture', {
+            method: 'POST',
+            body: body
+        });
+
+        if (response.ok) {
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+        } else {
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+
+    loadProfilePic();
 }
 
-let prueba= 'user100.png';
+async function loadProfilePic(){
+    loadingImage.value=true;
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getProfilePicture', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
+        });
 
-onMounted(() => {
+        if (response.ok) {
+            let loadedImage = await response.blob();
+            loadedImage = URL.createObjectURL(loadedImage);
+            userProfilePic.value = loadedImage;
+        } else {
+            userProfilePic.value = '../../public/FotoPerfil/user100.png';
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+        userProfilePic.value = '../../public/FotoPerfil/user100.png';
+    }
+    loadingImage.value=false;
+}
+
+onMounted(async () => {
     loadUsername();
+    await loadProfilePic();
 })
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions" @hide-alert-box="()=>{ alertOptions.alertVisibility.value = false }" />
+
     <HeaderComponent />
     <div id="profileMain">
         <div class="profileFunctions">
-            <div id="userProfilePicture">
-                <img v-bind:src="'../../public/FotoPerfil/'+prueba" alt="Foto de usuario" @click="clickImageManager">
+            <div id="userProfilePicture" v-if="!loadingImage">
+                <img :src="userProfilePic" alt="Foto de usuario" @click="clickImage">
+            </div>
+            <div v-else>
+                <p>Cargando foto de perfil...</p>
             </div>
             <div id="userUsername">
                 <input type="text" v-model="username">
@@ -121,7 +224,7 @@ onMounted(() => {
             </div>
         </div>
     </div>
-    <input type="file" id="uploadImageInput" hidden @change="imageChangeManager">
+    <input type="file" id="uploadImageInput" hidden @change="changeImage" accept="image/*">
 </template>
 
 <style scoped>

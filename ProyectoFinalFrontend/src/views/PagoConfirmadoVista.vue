@@ -9,7 +9,7 @@ async function comprobarPago() {
     }
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/checkPaymentToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/checkPaymentToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -17,8 +17,8 @@ async function comprobarPago() {
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
+        if (response.ok) {
+            const data = await response.json();
             if(data.resultado){
                 grantPremiumToUser()
             }else{
@@ -39,7 +39,7 @@ async function grantPremiumToUser(){
     }
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/grantPremiumToUser', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/grantPremiumToUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -47,7 +47,7 @@ async function grantPremiumToUser(){
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
+        if (response.ok) {
             router.push('/panel')
         } else {
             console.log("Ha ocurrido un error al cargar el pago");

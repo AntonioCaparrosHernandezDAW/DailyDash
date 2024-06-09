@@ -1,78 +1,80 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import AlertComponent from '../components/AlertComponent.vue'
 
-let diaryText=ref('');
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
+
+let diaryText = ref('');
 let loading = ref(true);
 
-let formattedLoadedDay = new Date().toISOString().slice(0,10)
+let formattedLoadedDay = new Date().toISOString().slice(0, 10)
 let currentDate = new Date().toISOString().slice(0, 10);
 
-async function loadUserId() {
+onMounted(async () => {
+    loadDiaryEntry(formattedLoadedDay);
+})
+
+async function loadDiaryEntry(dateToLoad) {
+    let loadPost = {
+        userToken: localStorage.getItem("userToken"),
+        date: dateToLoad
+    }
+
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
+        const response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getDiaryEntry', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
+            body: JSON.stringify(loadPost)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json(); 
-            return data.userId
-        } else {
-            return 0;
+        const data = await response.json();
+        diaryText.value = data.text;    //Si pones response.text lo coge como una función en vez de un atributo
+    } catch (error) {
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+
+    loading.value = false;
+}
+
+
+const saveDiaryEntry = async () => {
+    let diaryInfo = {
+        userToken: localStorage.getItem("userToken"),
+        date: formattedLoadedDay,
+        text: diaryText.value
+    }
+
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateDiaryEntry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(diaryInfo)
+        });
+
+        if(!response.ok){
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        return 0;
-    }
-}
-
-async function loadDiaryEntry(dateToLoad){
-    let loadPost={
-        idUser:await loadUserId(),
-        date:dateToLoad
-    }
-
-    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getDiaryEntry', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loadPost)
-    });
-
-    if (respuesta.ok) {
-        const data = await respuesta.json();
-        diaryText.value=data.text;
-    } else {
-        console.error('Error en la petición:', respuesta.statusText);
-    }
-    
-    loading.value=false;
-}
-loadDiaryEntry(formattedLoadedDay);
-
-const saveDiaryEntry = async ()=>{
-    let diaryInfo={
-        idUser:await loadUserId(),
-        date:formattedLoadedDay,
-        text:diaryText.value
-    }
-
-    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateDiaryEntry', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(diaryInfo)
-    });
-
-    if (respuesta.ok) {
-        const data = await respuesta.json();
-        console.log(data)
-    } else {
-        console.error('Error en la petición:', respuesta.error);
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 
@@ -91,6 +93,8 @@ function changeDay(value) {
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions"
+        @hide-alert-box="() => { alertOptions.alertVisibility.value = false }" />
     <div>
         <div v-if="loading" id="diaryLogin">
             <p>Cargando diario...</p>
@@ -98,9 +102,11 @@ function changeDay(value) {
 
         <div id="diary" v-else="loading">
             <div class="dateBlock">
-                <img src="../assets/img/arrowRight.png" alt="arrow left" width="50px" height="50px" style="transform: rotate(180deg);" @click="changeDay(-1)">
+                <img src="../assets/img/arrowRight.png" alt="arrow left" width="50px" height="50px"
+                    style="transform: rotate(180deg);" @click="changeDay(-1)">
                 <input class="diaryDate" type="date" v-model="formattedLoadedDay" :max="currentDate"><br>
-                <img src="../assets/img/arrowRight.png" alt="arrow right" width="50px" height="50px" @click="changeDay(1)">
+                <img src="../assets/img/arrowRight.png" alt="arrow right" width="50px" height="50px"
+                    @click="changeDay(1)">
             </div>
             <textarea v-on:focusout="saveDiaryEntry" v-model="diaryText"></textarea>
         </div>

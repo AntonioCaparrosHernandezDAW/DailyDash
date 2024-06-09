@@ -1,4 +1,13 @@
 <script setup>
+import { ref } from 'vue';
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 const emit = defineEmits(['mostrarNota', 'notaBorrada']);
 const props = defineProps({
     idNote: Number,
@@ -7,31 +16,43 @@ const props = defineProps({
     text: String
 });
 
-const deletePost = async (event)=>{
+const deletePost = async (event) => {
     event.stopPropagation(); //Esto evita que se abra tambien el modal al hacer click
-    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteNote', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(props)
-    });
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteNote', {
+            method: 'PUT',  //Solo cambiará la visibilidad a false en el servidor asi que no llega a borar nada
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(props)
+        });
 
-    if (respuesta.ok) {
-        const data = await respuesta.json();
-        console.log(data.status)
-        emit("notaBorrada", true);
-    } else {
-        console.error('Ha ocurrido un error al intentar borrar la nota:', respuesta.statusText);
+        if (response.ok) {
+            emit("notaBorrada", true);
+        } else {
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 
-const mostrarNota =()=>{
+const mostrarNota = () => {
     emit('mostrarNota', props)
 }
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions"
+        @hide-alert-box="() => { alertOptions.alertVisibility.value = false }" />
+
     <div class="card" @click="mostrarNota">
         <h3>{{ props.title }}</h3>
         <p>{{ props.text }}</p>
@@ -40,14 +61,14 @@ const mostrarNota =()=>{
 </template>
 
 <style scoped>
-#trashIcon{
+#trashIcon {
     width: 32px;
     height: 32px;
     position: relative;
     align-self: self-end;
 }
 
-h3{
+h3 {
     margin-bottom: 0px;
     vertical-align: middle;
 }
@@ -137,7 +158,7 @@ textarea {
 /* FIN FORMULARIO */
 
 @media only screen and (max-width: 992px) {
-    .card{
+    .card {
         width: 28dvw;
         height: 13dvh;
     }

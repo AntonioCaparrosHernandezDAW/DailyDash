@@ -5,21 +5,33 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'
 import esLocale from '@fullcalendar/core/locales/es'
 import { onMounted, ref } from 'vue';
+import WeatherComponent from './WeatherComponent.vue';
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 
 let toDoStart = ref('');
 let toDoEnd = ref('');
 let toDoTitle = ref('');
 let toDoPriority = ref('Baja');
 let toDoDate = ref('');
-let toDoList=ref('');;
+let toDoList = ref('');
+let modalCargado = ref(false);
+let loading = ref(false)
 
 //No lo puedo meter rn methods porq ni idea de ocmo hacerla async
 async function loadToDos() {
     const body = {
-        token: localStorage.getItem("userToken")
+        userToken: localStorage.getItem("userToken")
     }
+
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -27,26 +39,33 @@ async function loadToDos() {
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            return data.todos;
+        if (response.ok) {
+            response = await response.json();
+            return response.todos;
         } else {
-            console.log("Ha ocurrido un error al cargar las tareas");
-            //loading.value = false;
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error al cargar las tareas:', error);
-        //loading.value = false;
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 
 export default {
     components: {
-        FullCalendar
+        FullCalendar,
+        WeatherComponent,
+        AlertComponent
     },
     setup() {
         let coloresPrioridad = {
-            "Baja": "#6ACD00",
+            "Baja": "#C4A80E",
             "Media": "#CD6300",
             "Alta": "#CD0000"
         }
@@ -54,20 +73,32 @@ export default {
         let tareasCargar = ref([])
 
         onMounted(async () => {
-            toDoList.value = await loadToDos()
-            //console.log("Paco: ", toDoList.value)
-            toDoList.value.map((toDo) => {
-                tareasCargar.value.push({
-                    title: toDo.titulo,
-                    start: toDo.fechaInicio,
-                    end: toDo.fechaFin,
-                    color: coloresPrioridad[toDo.prioridad]
-                })
-            })
-            //console.log("Completo?: ", tareasCargar)
+            await loadCalendarToDos()
         });
 
+        async function loadCalendarToDos(){
+            toDoList.value = await loadToDos()
+            toDoList.value.map((toDo) => {
+                if (toDo.completada) {
+                    tareasCargar.value.push({
+                        title: toDo.titulo,
+                        start: toDo.fechaInicio,
+                        end: toDo.fechaFin,
+                        color: "#1AAB0A",
+                    })
+                } else {
+                    tareasCargar.value.push({
+                        title: toDo.titulo,
+                        start: toDo.fechaInicio,
+                        end: toDo.fechaFin,
+                        color: coloresPrioridad[toDo.prioridad]
+                    })
+                }
+            })
+        }
+
         const cargarModal = (info) => {
+            modalCargado.value = false;
             const date = new Date(info.date);
             const year = date.getFullYear();
             const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -75,11 +106,12 @@ export default {
             toDoDate.value = `${year}-${month}-${day}`;
             toDoStart.value = toDoDate.value;
             toDoEnd.value = toDoDate.value;
-            //console.log(toDoDate.value);
+            modalCargado.value = true;
             document.querySelector(".createNoteButton").click();
         }
 
         const crearTarea = async () => {
+            loading.value = true;
             let body = {
                 userToken: localStorage.getItem("userToken"),
                 titulo: toDoTitle.value,
@@ -89,7 +121,7 @@ export default {
             }
 
             try {
-                const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
+                let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -97,15 +129,26 @@ export default {
                     body: JSON.stringify(body)
                 });
 
-                if (respuesta.ok) {
-                    const data = await respuesta.json();
-                    await loadToDos();
-                    
+                if (response.ok) {
+                    toDoTitle.value = '';
+                    toDoPriority.value = 'Baja';
+                    toDoStart.value = '';
+                    toDoEnd.value = '';
+                    document.getElementById('btnCerrar').click();
+                    //Ver como recargar esto, tenia puesto un loadCalendarToDos() pero al parecer duplica todas las tareas y si vacio el array de tareas antes de empezar a hacer el push se queda vacio igual
+                    loading.value = false;
                 } else {
-                    console.log("Ha ocurrido un error al crear la tarea")
+                    response = await response.json();
+                    alertOptions.alertVisibility.value = true;
+                    alertOptions.alertTitle.value = response.errorTitle;
+                    alertOptions.alertText.value = response.errorText;
+                    alertOptions.alertSucess.value = response.status;
                 }
             } catch (error) {
-                console.log("Ha ocurrido un error al crear la tarea: ", error)
+                alertOptions.alertVisibility.value = true;
+                alertOptions.alertTitle.value = "Error";
+                alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+                alertOptions.alertSucess.value = false;
             }
         }
 
@@ -117,7 +160,11 @@ export default {
             toDoPriority,
             toDoStart,
             toDoEnd,
-            toDoDate
+            toDoDate,
+            modalCargado,
+            loading,
+            alertOptions,
+            loadCalendarToDos
         }
     },
     data() {
@@ -130,13 +177,12 @@ export default {
                 height: '90dvh',
                 width: '60dvw',
                 headerToolbar: {
-                    start: 'dayGridMonth,timeGridWeek', /* timeGridDay */
+                    start: 'dayGridMonth',
                     center: 'title',
                     end: 'prev,today,next'
                 },
                 dateClick: this.cargarModal,
                 events: this.tareasCargar,
-                //selectable: "true",   Esto ya es muy complicado, hacer de ampliación
             }
         }
     }
@@ -144,6 +190,8 @@ export default {
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions"
+        @hide-alert-box="() => { alertOptions.alertVisibility.value = false }" />
     <!--MODAL-->
     <div class="modal fade" id="createNoteBox">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
@@ -157,13 +205,19 @@ export default {
                     <input type="text" class="inputTitulo" placeholder="Título" v-model="toDoTitle" />
                     <label class="labelTitulo">Título: </label>
 
-                    <label><b>Prioridad:</b></label><br>
-                    <select style="margin-bottom: 4%;" v-model="toDoPriority">
-                        <option value="Baja">Baja</option>
-                        <option value="Media">Media</option>
-                        <option value="Alta">Alta</option>
-                    </select>
-                    <br>
+                    <div class="priorityAndWeather">
+                        <div>
+                            <label><b>Prioridad:</b></label><br>
+                            <select style="margin-bottom: 4%;" v-model="toDoPriority">
+                                <option value="Baja">Baja</option>
+                                <option value="Media">Media</option>
+                                <option value="Alta">Alta</option>
+                            </select>
+                        </div>
+
+                        <WeatherComponent city="Monovar" :date="toDoDate" v-if="modalCargado" />
+                    </div>
+
                     <label><b>Fecha: </b></label><br>
                     <label>Desde: </label>
                     <input type="date" style="margin: 0px 5% 0px 1%;" v-model="toDoStart" :value="toDoDate">
@@ -171,7 +225,7 @@ export default {
                     <input type="date" style="margin-left: 1%;" v-model="toDoEnd">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" id="btnCerrar" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="btn btn-primary" @click="crearTarea">Guardar</button>
                 </div>
             </div>
@@ -182,13 +236,22 @@ export default {
         style="display: none;"></button>
 
 
-    <div class="calendarView">
+    <div v-if="loading">
+        <p>Cargando...</p>
+    </div>
+
+    <div class="calendarView" v-else>
         <FullCalendar :options="calendarOptions" class="calendar" />
     </div>
 
 </template>
 
 <style scoped>
+.priorityAndWeather {
+    display: flex;
+    justify-content: space-around;
+}
+
 /* FORMULARIO */
 .inputTitulo {
     width: 100%;

@@ -1,6 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import ToDoComponent from './ToDoComponent.vue'
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 
 let tituloCrear = ref('');
 let prioridadCrear = ref('');
@@ -8,37 +16,16 @@ let fechaInicioCrear = ref('');
 let fechaFinCrear = ref('');
 
 let tareas = ref([]);
+let tareasImportadas = ref([]);
 let loading = ref(true);
 
-/*
-async function loadUserId() {
-    try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
-        });
-
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            return data.userId
-        } else {
-            return 0;
-        }
-    } catch (error) {
-        return 0;
-    }
-}
-*/
+let importCode=ref('');
 
 const crearTarea = async () => {
     loading.value = true;
 
     let tareaCrear = {
         userToken: localStorage.getItem("userToken"),
-        //userId: await loadUserId(),
         titulo: tituloCrear.value,
         prioridad: prioridadCrear.value,
         fechaInicio: fechaInicioCrear.value,
@@ -46,7 +33,7 @@ const crearTarea = async () => {
     };
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -54,29 +41,67 @@ const crearTarea = async () => {
             body: JSON.stringify(tareaCrear)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
+        if (response.ok) {
             await loadToDos();
-            loading.value=false;
         } else {
-            console.log("Ha ocurrido un error al crear la tarea")
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.log("Ha ocurrido un error al crear la tarea: ", error)
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
+
+    loading.value = false;
+    tituloCrear.value = '';
+    prioridadCrear.value = '';
+    fechaInicioCrear.value = '';
+    fechaFinCrear.value = '';
 }
 
 async function loadToDos() {
     loading.value = true;
-    console.log("Las tareas del usuario estan siendo cargadas...")
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
+        });
 
-    let userToken = localStorage.getItem("userToken")
+        if (response.ok) {
+            response = await response.json();
+            tareas = response.todos;
+            loading.value = false;
+        } else {
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+}
+
+const importarTarea = async ()=>{
     const body = {
-        token: userToken
+        userToken: localStorage.getItem("userToken"),
+        importCode: importCode.value
     }
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/importToDo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -84,25 +109,75 @@ async function loadToDos() {
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            tareas = data.todos;
-            loading.value = false;
-        } else {
-            console.log("Ha ocurrido un error al cargar las notas");
-            //loading.value = false;
+        if (response.ok) {
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+        }else{
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error al cargar las notas:', error);
-        //loading.value = false;
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+
+    importCode.value='';
+}
+
+async function loadImportedToDos(){
+    loading.value = true;
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listImportedToDos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
+        });
+
+        if (response.ok) {
+            response = await response.json();
+            tareasImportadas.value = response.importedToDos;
+        } else {
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
-loadToDos();
 
+onMounted(()=>{
+    loadToDos();
+    loadImportedToDos();
+})
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions"
+        @hide-alert-box="() => { alertOptions.alertVisibility.value = false }" />
+
+    <div class="importarTarea">
+        <input type="text" v-model="importCode">
+        <button @click="importarTarea">Importar Tarea</button>
+    </div>
+
     <div class="tareasMain">
+        <h3><u>Tareas propias</u></h3>
         <div class="headerToDo">
             <div class="titulo">Título</div>
             <div class="prioridad">Prioridad</div>
@@ -142,11 +217,35 @@ loadToDos();
                 <ToDoComponent :titulo="tarea.titulo" :prioridad="tarea.prioridad" :fecha-inicio="tarea.fechaInicio"
                     :fecha-fin="tarea.fechaFin" :completada="tarea.completada" @reload-to-dos="loadToDos" />
             </div>
+
+            <hr>
+            <h3 id="tituloTareasImportadas"><u>Tareas compartidas</u></h3>
+            <div v-for="(tarea, key) in tareasImportadas" :key="key">
+                <ToDoComponent :titulo="tarea.titulo" :prioridad="tarea.prioridad" :fecha-inicio="tarea.fechaInicio"
+                    :fecha-fin="tarea.fechaFin" :completada="tarea.completada" @reload-to-dos="loadToDos" />
+            </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+#tituloTareasImportadas{
+    margin-top: 50px;
+    text-align: center;
+}
+
+.importarTarea{
+    outline: 1px solid black;
+    width: 400px;
+    margin: 50px auto 0px auto;
+    background-color: var(--navbar);
+    padding: 10px;
+
+    & input{
+        width: 250px;
+    }
+}
+
 .headerToDo {
     outline: 1px solid black;
     display: flex;

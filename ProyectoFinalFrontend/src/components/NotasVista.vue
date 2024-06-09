@@ -1,30 +1,35 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import NoteComponent from './NoteComponent.vue';
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 
 let notesToLoad = ref([]);
 let loading = ref(true);
 let idEditingNote;
 let editando = ref(false);
 let note = {
-    idUser: 0,
+    userToken: localStorage.getItem("userToken"),
     noteTitle: ref(''),
     noteText: ref('')
 }
 
 onMounted(async () => {
-    note.idUser = await loadUserId()
     loadNotes()
-    try{
-        document.getElementById('createNoteBox').addEventListener('hidden.bs.modal', clearNote)
-    }catch(error){
-        //NotasVista se monta
-    }
+    document.getElementById('createNoteBox').addEventListener('hidden.bs.modal', clearNote)
 })
 
-async function loadUserId() {
+async function loadNotes() {
+    loading.value = true;
+
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listNotes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -32,58 +37,34 @@ async function loadUserId() {
             body: JSON.stringify({ userToken: localStorage.getItem("userToken") })
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            return data.userId
-        } else {
-            return 0;
-        }
-    } catch (error) {
-        return 0;
-    }
-}
-
-async function loadNotes() {
-    console.log("Las notas del usuario estan siendo cargadas...")
-    loading.value = true;
-
-    let userToken = localStorage.getItem("userToken")
-    const body = {
-        token: userToken
-    }
-
-    try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listNotes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
-
-        if (respuesta.ok) {
-            const data = await respuesta.json();
+        if (response.ok) {
+            const data = await response.json();
             notesToLoad = data.notes
             loading.value = false;
         } else {
-            console.log("Ha ocurrido un error al cargar las notas");
-            alert("Ha ocurrido un error al cargar las notas");
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error al cargar las notas:', error);
-        alert("Ha ocurrido un error al cargar las notas");
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 
 const createNote = async () => {
     let noteToCreate = {
-        idUser: note.idUser,
+        userToken: note.userToken,
         noteTitle: note.noteTitle.value,
         noteText: note.noteText.value
     }
 
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createNote', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createNote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -91,15 +72,24 @@ const createNote = async () => {
             body: JSON.stringify(noteToCreate)
         });
 
-        if (respuesta.ok) {
+        if (response.ok) {
             document.getElementById('closeNoteButton').click();
             loading.value = true;
             loadNotes();
         } else {
-            console.error('Error en la petición:', respuesta.statusText);
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+            document.getElementById('closeNoteButton').click();
         }
     } catch (error) {
-        console.error('Error al crear la nota:', error);
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+        document.getElementById('closeNoteButton').click();
     }
 }
 
@@ -120,31 +110,44 @@ const mostrarNota = (editingNote) => {
 const saveNoteChanges = async () => {
     const editedNote = {
         idNote: idEditingNote,
-        idUser: note.idUser,
-        title: note.noteTitle.value,
-        text: note.noteText.value
+        noteTitle: note.noteTitle.value,
+        noteText: note.noteText.value
     }
 
-    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateNote', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(editedNote)
-    });
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateNote', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(editedNote)
+        });
 
-    if (respuesta.ok) {
-        const data = await respuesta.json();
-        console.log(data.status)
-        loadNotes()
+        if (response.ok) {
+            loadNotes()
+            document.getElementById('closeNoteButton').click();
+        } else {
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+            document.getElementById('closeNoteButton').click();
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
         document.getElementById('closeNoteButton').click();
-    } else {
-        console.error('Error en la petición:', respuesta.statusText);
     }
 }
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions"
+        @hide-alert-box="() => { alertOptions.alertVisibility.value = false }" />
+
     <!--MODAL-->
     <div class="modal fade" id="createNoteBox">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">

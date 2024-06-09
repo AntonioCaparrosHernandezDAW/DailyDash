@@ -2,7 +2,6 @@
 import { onMounted } from 'vue';
 
 onMounted(()=>{
-    console.log("Montando")
     document.querySelector('#initModal').click();
 });
 
@@ -11,7 +10,7 @@ async function reenvioPago(){
         userToken: localStorage.getItem("userToken")
     }
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createPaymentToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createPaymentToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -19,13 +18,9 @@ async function reenvioPago(){
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            localStorage.setItem('pruebaPago', data.token)
-            window.location.href="https://buy.stripe.com/test_00g28x5apbA8cmscMN";
-        } else {
-            console.log("Ha ocurrido un error al cargar el pago");
-        }
+        const data = await response.json();
+        localStorage.setItem('pruebaPago', data.token)
+        window.location.href="https://buy.stripe.com/test_00g28x5apbA8cmscMN";
     } catch (error) {
         console.error('Ha ocurrido un error al conectar con el servidor:', error);
     }
@@ -45,7 +40,9 @@ async function reenvioPago(){
                             <b>0€/mes</b>
                             <div class="features">
                                 <ul>
-                                    <li>Es gratis</li>
+                                    <li>Tamaño de titulo de notas y texto limitado(15/100 caracteres)</li>
+                                    <li>Tamaño de diario limitado(500 caracteres)</li>
+                                    <li>Máximo 15 tareas</li>
                                 </ul>
                             </div>
                         </div>
@@ -55,7 +52,9 @@ async function reenvioPago(){
                             <b>1€/mes</b>
                             <div class="features">
                                 <ul>
-                                    <li>No es gratis</li>
+                                    <li>Tamaño de titulo y texto de notas EXPANDIDO(50/1000 caracteres)</li>
+                                    <li>Tamaño de hoja de diario EXPANDIDO(3000 caracteres)</li>
+                                    <li>Maximo de 50 tareas</li>
                                 </ul>
                             </div>
                             <a @click="reenvioPago"><button>Comprar</button></a>
@@ -81,19 +80,29 @@ async function reenvioPago(){
         border-radius: 8px;
         padding: 3%;
         height: 100%;
-        outline: 1px solid black;
+        box-shadow: 0 0 4px black;
 }
 
 .features{
     margin: 4% auto;
-    width: 50%;
+    width: 80%;
     text-align: left;
     height: 70%;
+}
+
+li{
+    margin-bottom: 10px;
 }
 
 button{
     padding: 2%;
     background-color: orange;
     border-radius: 10px;
+    border: 0px solid black;
+    box-shadow: 0 0 4px black;
+}
+
+button:hover{
+    background-color: orangered;
 }
 </style>

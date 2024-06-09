@@ -1,6 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import router from '../router/index.js'
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 
 let displayBox = ref('baseLogin');
 
@@ -11,116 +19,27 @@ let registerEmail = ref('');
 let registerPassword = ref('');
 let confPassword = ref('');
 
-let emailToSendRemember=ref('');
-let passwordCode=ref('');
-let newPassword=ref('')
+let emailToSendRemember = ref('');
+let passwordCode = ref('');
+let newPassword = ref('');
 
-let succesfulUserRegisterAlertDisplay = "none";
-let failedUserRegisterAlertDisplay = "none";
-let failedUserLoginAlertDisplay = "none";
+onMounted(()=>{
+    if(localStorage.getItem('userEmail')!='null' && localStorage.getItem('userToken')!='null'){
+        console.log("ya logueado, redirigiendo...")
+        router.push('/panel')
+    }
+})
 
-function reiniciarAvisos() {
-    succesfulUserRegisterAlertDisplay = "none";
-    failedUserRegisterAlertDisplay = "none";
-    failedUserLoginAlertDisplay = "none";
-}
-
-const registrarUsuario = async () => {
-    reiniciarAvisos();
-    const datos = {
+//Envia los datos introducidos por el usuario para registrarlo en la base de datos
+const registerUser = async () => {
+    const body = {
         email: registerEmail.value,
         password: registerPassword.value,
         password_confirmation: confPassword.value
     };
 
-    // Realizar la petición POST al servidor
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
-        });
-
-        const data = await respuesta.json();
-        succesfulUserRegisterAlertDisplay = "flex";
-
-    } catch (error) {
-        console.error('Error en la petición:', error);
-        failedUserRegisterAlertDisplay = "flex";
-    }
-
-    registerEmail.value = "";
-    registerPassword.value = "";
-    confPassword.value = "";
-}
-
-const logearUsuario = async () => {
-    reiniciarAvisos();
-    const datos = {
-        email: loginEmail.value,
-        password: loginPassword.value,
-    };
-
-    // Realizar la petición POST al servidor
-    const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datos)
-    });
-
-    const data = await respuesta.json();
-    if (data.user) {
-        console.log(data.user)
-        console.log("Login correcto. Redirigiendo...");
-        localStorage.setItem('userEmail', data.user)
-        localStorage.setItem('userToken', data.token)
-        localStorage.setItem('sectionLoad', 'Notes')
-        router.push("/panel");
-    } else {
-        failedUserLoginAlertDisplay = "flex";
-        console.log(data.error);
-        loginEmail.value = "";
-        loginPassword.value = "";
-    }
-}
-
-async function sendEmailToRememberPassword() {
-    try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/sendEmailToRemember', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email:emailToSendRemember.value })
-        });
-
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            console.log("correcto")
-            displayBox.value='rememberPasswordCode';
-        } else {
-            console.log("Ha ocurrido un error al cargar las tareas");
-            //loading.value = false;
-        }
-    } catch (error) {
-        console.error('Error al cargar las tareas:', error);
-        //loading.value = false;
-    }
-}
-
-async function changePassword(){
-    console.log("Cambiando")
-    const body={
-        email:emailToSendRemember.value,
-        code:passwordCode.value,
-        newPassword: newPassword.value
-    }
-    try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePasswordWithCode', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/registerUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -128,62 +47,166 @@ async function changePassword(){
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            console.log("correcto", data)
-            displayBox.value='baseLogin';
-        } else {
-            console.log("Ha ocurrido un error al cargar las tareas");
-            //loading.value = false;
+        if(response.ok){
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+        }else{
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.error('Error al cargar las tareas:', error);
-        //loading.value = false;
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
+
+    registerEmail.value = "";
+    registerPassword.value = "";
+    confPassword.value = "";
+}
+
+//Valida los datos del usuario al intentar entrar a la aplicación y si es correcto inicializa variables que se utilizarán a futúro y traslada al usuario a /panel
+const logUser = async () => {
+    const body = {
+        email: loginEmail.value,
+        password: loginPassword.value
+    };
+
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/logUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if(response.ok){
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+            localStorage.setItem('userEmail', response.user)
+            localStorage.setItem('userToken', response.token)
+            localStorage.setItem('sectionLoad', 'Notes')
+            await router.push("/panel");
+        }else{
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+
+    loginEmail.value = "";
+    loginPassword.value = "";
+}
+
+//Comprueba el correo introducido por el usuario y le envía un correo al mismo con un código
+const sendEmailToRememberPassword = async () => {
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/sendEmailToRemember', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: emailToSendRemember.value })
+        });
+
+        if(response.ok){
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+            displayBox.value="rememberPasswordCode"
+        }else{
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+}
+
+//Manda una petición al servidor con los datos para comprobar que el código de cambio de contraseña sea correcto e introduzca la nueva contraseña
+const changePassword = async () => {
+    const body = {
+        email: emailToSendRemember.value,
+        code: passwordCode.value,
+        newPassword: newPassword.value
+    };
+
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePasswordWithCode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if(response.ok){
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+            displayBox.value = "baseLogin"
+        }else{
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value=true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+
+    emailToSendRemember.value = '';
+    passwordCode.value='';
+    newPassword.value='';
 }
 </script>
 
 <template>
     <div class="main">
-        <!--ALERTS-->
-        <!--Succesful Register-->
-        <div class="alert alert-success succesfulUserRegisterAlert"
-            :style="{ display: succesfulUserRegisterAlertDisplay }">
-            <div>
-                <h3>Registro Correcto</h3>
-                <p>El usuario ha sido registrado correctamente</p>
-            </div>
-            <button type="button" class="btn-close" @click="succesfulUserRegisterAlertDisplay = 'none'"></button>
-        </div>
-
-        <!--Failed Register-->
-        <div class="alert alert-danger failedUserRegisterAlert" :style="{ display: failedUserRegisterAlertDisplay }">
-            <div>
-                <h3>Error al Registrar</h3>
-                <p>Ha ocurrido un error al registrar al usuario</p>
-            </div>
-            <button type="button" class="btn-close" @click="failedUserRegisterAlertDisplay = 'none'"></button>
-        </div>
-
-        <!--Failed Login-->
-        <div class="alert alert-danger failedUserLoginAlert" :style="{ display: failedUserLoginAlertDisplay }">
-            <div>
-                <h3>Error al Autentificar</h3>
-                <p>Ha ocurrido un error al intentar autentificar al usuario</p>
-            </div>
-            <button type="button" class="btn-close" @click="failedUserLoginAlertDisplay = 'none'"></button>
-        </div>
-        <!--END ALERTS-->
+        <AlertComponent :alert-options="alertOptions" @hide-alert-box="()=>{ alertOptions.alertVisibility.value = false }" />
 
         <div class="container-sm loginRegisterBox" v-if="displayBox == 'baseLogin'">
             <section class="login_options">
                 <div class="login_title">
                     <!--<img src="./img/2.jpeg" width="50px" height="50px" />-->
-                    <h1 style="font-size: 40px; margin-left: 10px">DailyDash</h1>
+                    <div class="logoBox"><img src="../assets/img/logoDailyDash.png" alt="Logo DailyDash" height="40px">
+                    </div>
                 </div>
 
                 <h4>Inicia sesión</h4>
-                <form method="post" class="form_login" @submit.prevent="logearUsuario">
+                <form method="post" class="form_login" @submit.prevent="logUser">
                     <input type="text" v-model="loginEmail" placeholder="Correo electrónico" name="emailLogin">
                     <input type="password" v-model="loginPassword" placeholder="Contraseña" name="passLogin">
                     <input type="submit" class="btn btn-primary" value="Iniciar Sesión">
@@ -194,14 +217,13 @@ async function changePassword(){
                 <hr style="margin: 30px 0px;">
 
                 <h4>O Registrate aquí</h4>
-                <form method="post" @submit.prevent="registrarUsuario" class="form_registrar">
+                <form method="post" @submit.prevent="registerUser" class="form_registrar">
                     <input type="text" v-model="registerEmail" placeholder="Correo electrónico" name="emailRegistrar">
                     <input type="password" v-model="registerPassword" placeholder="Contraseña" name="passRegistrar">
                     <input type="password" v-model="confPassword" placeholder="Confirmar Contraseña" name="confirmPass">
                     <input type="submit" class="btn btn-primary" value="Registrar">
                 </form>
-                <p class="terms">Al continuar confirmas que entiendes y aceptas la <a href="#">Política de
-                        privacidad</a> y los <a href="#">Téminos y condiciones</a></p>
+                <p class="terms">Al continuar confirmas que entiendes y aceptas los <RouterLink to="/politica">Téminos y condiciones</RouterLink></p>
             </section>
         </div>
 
@@ -212,28 +234,43 @@ async function changePassword(){
             <div class="emailToRememberBox">
                 <label>Correo electrónico: </label>
                 <input type="text" v-model="emailToSendRemember">
-                <input type="submit" value="Enviar" @click="sendEmailToRememberPassword">
+                <input type="submit" value="Enviar" class="btn btn-primary" @click="sendEmailToRememberPassword">
             </div>
         </div>
 
         <!-- EMAIL REMEMBER PASO 2 -->
-        <div class="container-sm passwordRememberBox" v-else-if="displayBox == 'rememberPasswordCode'">
+        <div class="container-sm passwordRememberCodeBox" v-else-if="displayBox == 'rememberPasswordCode'">
             <img src="../assets/img/arrowRight.png" alt="Botón atras" width="50px" height="50px"
                 style="transform: rotate(180deg);" @click="() => { displayBox = 'rememberPasswordEmail' }">
             <div class="emailToRememberBox">
                 <label>Código: </label>
                 <input type="text" v-model="passwordCode">
                 <label>Contraseña Nueva: </label>
-                <input type="text" v-model="newPassword">
-                <input type="submit" value="Enviar" @click="changePassword">
+                <input type="password" v-model="newPassword">
+                <input type="submit" value="Enviar" class="btn btn-primary" @click="changePassword">
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
+.logoBox {
+    font-size: 40px;
+    color: #0d6efd;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.passwordRememberBox{
+    height: 230px !important;
+}
+
+.passwordRememberCodeBox{
+    height: 300px !important;
+}
+
 .emailToRememberBox {
-    padding: 10%;
+    padding: 3% 10%;
 }
 
 .alert {
@@ -274,7 +311,8 @@ async function changePassword(){
 
 .form_login,
 .form_registrar,
-.passwordRememberBox {
+.passwordRememberBox,
+.passwordRememberCodeBox {
     margin-top: 8px;
 
     & input {
@@ -314,4 +352,5 @@ async function changePassword(){
         padding: 0px
     }
 }
+
 </style>

@@ -29,10 +29,10 @@ const router = createRouter({
       component: () => import('../views/PagoConfirmadoVista.vue')
     },
     {
-      path: '/prueba',
-      name: 'prueba',
-      component: () => import('@/components/TiempoComponent.vue')
-    },
+      path: '/politica',
+      name: 'politicaPrivacidad',
+      component: () => import('../views/PoliticaVista.vue')
+    }
   ]
 })
 

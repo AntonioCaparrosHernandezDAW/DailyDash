@@ -5,13 +5,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
+    //Devuelve los datos relevantes para identificar al usuarioo que corresponde al token recibido
     public function getUserByToken(Request $request){
+        //Recoge al usuario
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
             ->first();
+
+        //Devuelve error si el usuario no existe
+        if(!$user){
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => "Ha ocurrido un error al cargar al usuario",
+                'status'=>false
+            ], 400);
+        }
 
         return response()->json([
             "userId"=>$user->id,
@@ -19,16 +34,75 @@ class UserController extends Controller
         ]);
     }
 
+    public function getProfilePicture(Request $request){
+        $user = DB::table('usuarios')
+            ->where('remember_token',$request['userToken'])
+            ->first();
+    
+        if(!$user){
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => "Ha ocurrido un error al cargar al usuario",
+                'status'=>false
+            ], 400);
+        }
+    
+        $profilePictureLocation = 'profilePictures/'.$user->id.'.png';
+    
+        if (!Storage::exists($profilePictureLocation)) {
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => "La foto de perfil no existe",
+                'status' => false
+            ], 400);
+        }
+    
+        $profilePictureLocation = storage_path('app/' . $profilePictureLocation);
+    
+        $file = File::get($profilePictureLocation);
+    
+        $response = Response::make($file, 200);
+    
+        return $response;
+    }
+
+    //Cambia el nombre de usuario del usuario que corresponde al token recibido
     public function changeUsername(Request $request){
-        $request->validate([
-            'newUsername' => 'required|string|max:255|unique:usuarios,username',
-        ]);
+         //Mensajes de error
+         $messages = [
+            'newUsername.required' => 'El nuevo nombre de cuenta es obligatorio',
+            'newUsername.max' => 'El nombre de cuenta es demasiado largo',
+            'newUsername.unique' => 'El nombre de cuenta ya existe'
+        ];
+
+        //Reglas de validación
+        $rules=[
+            "newUsername" => "required|max:15|unique:usuarios,username",
+        ];
+
+        //Validaciones
+        $validator = Validator::make($request->input(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => $validator->errors()->first(),
+                'status'=>false
+            ], 400);
+        }
         
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
             ->first();
 
-        if($user){
+        if(!$user){
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => "Ha ocurrido un error al cargar al usuario",
+                'status'=>false
+            ], 400);
+
+        }else{
+            //Modifica el nombre de usuario
             DB::table('usuarios')
                 ->where('remember_token',$request['userToken'])
                 ->update([
@@ -36,50 +110,66 @@ class UserController extends Controller
                 ]);
             
 
-                /*
-            if ($user->username === $request['newUsername']) {
-                return response()->json(['response' => 'Nombre de usuario modificado correctamente']);
-            } else {
-            }*/
-            return response()->json(['response' => 'Ha ocurrido un error al modificar el nombre del usuario']);
-
-        }else{
             return response()->json([
-                'response'=>"Usuario no encontrado"
-            ]);
+                'responseTitle'=> "Nombre de cuenta modificado",
+                'responseText'=> "El nombre de la cuenta ha sido modificado correctamente",
+                'status'=> true
+            ]);      
         }
     }
 
+    //Cambia la contraseña del usuario que corresponde al token recibido
     public function changePassword(Request $request){
-        //Como luego se comprueba si la password nueva es ideantica a la comprobación no hace falta comprobar tambien la confirmación
-        $request->validate([
-            'newPassword' => 'required|string|max:255',
-        ]);
+        //Mensajes de error
+        $messages = [
+            'newPassword.required' => 'La contraseña es obligatoria',
+            'newPassword.max' => 'La contraseña no puede superar los 20 carácteres',
+            'newPassword.confirmed' => 'Las nuevas contraseñas no coinciden',
+            'newPassword.regex' => 'La contraseña no puede tener menos de 9 carácteres',
+        ];
+
+        //Reglas de validación
+        $rules=[
+            "newPassword" => [
+                "required",
+                "max:20",
+                "confirmed",
+                "regex:/^.{9,}$/"
+            ]
+        ];
+
+        //Validaciones
+        $validator = Validator::make($request->input(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => $validator->errors()->first(),
+                'status'=>false
+            ], 400);
+        }
 
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
             ->first();
 
         if (Hash::check($request["oldPassword"], $user->password)) {
-            if($request['newPassword']==$request['confirmedPassword']){
-                DB::table('usuarios')
-                    ->where('remember_token',$request['userToken'])
-                    ->update([
-                        'password'=>Hash::make($request['newPassword'])
-                    ]);
+            DB::table('usuarios')
+                ->where('remember_token',$request['userToken'])
+                ->update([
+                    'password'=>Hash::make($request['newPassword'])
+                ]);
 
-                return response()->json([
-                    'response'=>"La contraseña ha sido cambiada correctamente"
-                ]);
-            }else{
-                return response()->json([
-                    'response'=>"La contraseña nueva no concuerda con su confirmación"
-                ]);
-            }
+            return response()->json([
+                'responseTitle'=> "Contraseña modificada",
+                'responseText'=> "La contraseña ha sido modificada correctamente",
+                'status'=> true
+            ]); 
         }else{
             return response()->json([
-                'response'=>"La contraseña anterior es incorrecta"
-            ]);
+                'errorTitle' => "Error",
+                'errorText' => "La contraseña antigua no es correcta",
+                'status'=>false
+            ], 400);
         }
     }
 
@@ -117,7 +207,43 @@ class UserController extends Controller
         DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
             ->update([
-                    'premium'=>1
-                ]); 
+                'premium'=>1
+            ]); 
+    }
+
+    public function changeProfilePicture(Request $request){
+        //Mensajes de error
+        $messages = [
+            'profilePic.required' => 'Debes subir un archivo',
+            'profilePic.image' => 'Debes subir una imagen'
+        ];
+
+        //Reglas de validación
+        $rules=[
+            "profilePic"=>'required|image'
+        ];
+
+        //Validaciones
+        $validator = Validator::make($request->all(), $rules, $messages);   //Hay que hacer $request->all() porque sino no coge los archivos
+        if ($validator->fails()) {
+            return response()->json([
+                'errorTitle' => "Error",
+                'errorText' => $validator->errors()->first(),
+                'status'=>false
+            ], 400);
+        }
+
+        $user = DB::table('usuarios')
+            ->where('remember_token',$request['userToken'])
+            ->first();
+
+        $filename = $user->id.'.png';
+        Storage::putFileAs('profilePictures', $request->file('profilePic'), $filename);
+
+        return response()->json([
+            'responseTitle'=> "Foto de perfil modificada",
+            'responseText'=> "La foto de perfil ha sido modificada correctamente",
+            'status'=> true
+        ]); 
     }
 }

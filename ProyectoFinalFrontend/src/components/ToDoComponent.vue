@@ -1,5 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue';
+import AlertComponent from '../components/AlertComponent.vue'
+
+let alertOptions = {
+    alertTitle: ref(''),
+    alertText: ref(''),
+    alertSucess: ref(true),
+    alertVisibility: ref(false),
+}
 
 const emit = defineEmits(['reloadToDos']);
 
@@ -30,36 +38,44 @@ const editarTarea = () => {
 }
 
 const guardarEdicion = async () => {
-    console.log(valoresEditados.value);
-
+    console.log(valoresEditados.value.fechaInicio)
+    console.log(valoresEditados.value.fechaFin)
     const body = {
-        titulo: propsIniciales.titulo,
+        tituloOriginal: propsIniciales.titulo,
         userToken: localStorage.getItem("userToken"),
-        valoresEditados: valoresEditados.value
+        titulo:valoresEditados.value.titulo,
+        prioridad:valoresEditados.value.prioridad,
+        fechaInicio:valoresEditados.value.fechaInicio,
+        fechaFin:valoresEditados.value.fechaFin
     }
     
     //FETCH update
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateToDo', {
-            method: 'POST',
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateToDo', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
+        if (response.ok) {
             emit("reloadToDos", true);
         } else {
-            console.log("Ha ocurrido un error al completar la tarea")
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.log("Ha ocurrido un error al conectar con el servidor")
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 
     editando.value = false;
-    emit("reloadToDos", true);
 }
 
 const borrarTarea = async () => {
@@ -70,29 +86,33 @@ const borrarTarea = async () => {
 
     //Fetch borrar
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteToDo', {
-            method: 'POST',
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteToDo', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
+        if (response.ok) {
             emit("reloadToDos", true);
         } else {
-            console.log("Ha ocurrido un error al completar la tarea")
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.log("Ha ocurrido un error al conectar con el servidor")
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 
 const completarTarea = async () => {
-    //console.log("Antes: ", completadaEditable.value)
-    completadaEditable.value === 1 ? completadaEditable.value = 0 : completadaEditable.value = 1;
-    //console.log("Después: ", completadaEditable.value)
+    completadaEditable.value == 1 ? completadaEditable.value = 0 : completadaEditable.value = 1;   //Terciario que comprueba el valor de completada editable y pone el valor 0 si era 1 y 1 si era 0
 
     const body = {
         titulo: propsIniciales.titulo,
@@ -102,7 +122,7 @@ const completarTarea = async () => {
 
     //Fetch update completada
     try {
-        const respuesta = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/completeToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/completeToDo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -110,23 +130,67 @@ const completarTarea = async () => {
             body: JSON.stringify(body)
         });
 
-        if (respuesta.ok) {
-            const data = await respuesta.json();
-            console.log(data)
-        } else {
-            console.log("Ha ocurrido un error al completar la tarea")
+        if (!response.ok) {
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
         }
     } catch (error) {
-        console.log("Ha ocurrido un error al conectar con el servidor")
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
+    }
+}
+
+const copiarCodigoTarea = async()=>{
+    const body = {
+        titulo: propsIniciales.titulo,
+        userToken: localStorage.getItem("userToken"),
+    }
+
+    try {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getToDoCode', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (response.ok) {
+            response = await response.json();
+            alertOptions.alertVisibility.value=true;
+            alertOptions.alertTitle.value = response.responseTitle;
+            alertOptions.alertText.value = response.responseText;
+            alertOptions.alertSucess.value = response.status;
+        }else{
+            response = await response.json();
+            alertOptions.alertVisibility.value = true;
+            alertOptions.alertTitle.value = response.errorTitle;
+            alertOptions.alertText.value = response.errorText;
+            alertOptions.alertSucess.value = response.status;
+        }
+    } catch (error) {
+        alertOptions.alertVisibility.value = true;
+        alertOptions.alertTitle.value = "Error";
+        alertOptions.alertText.value = "Ha ocurrido un error al intentar conectarse al servidor";
+        alertOptions.alertSucess.value = false;
     }
 }
 </script>
 
 <template>
+    <AlertComponent :alert-options="alertOptions"
+    @hide-alert-box="() => { alertOptions.alertVisibility.value = false }" />
+
     <div class="tarea" :style="{ backgroundColor: completadaEditable === 1 ? '#54DE00' : '#DE0000' }">
         <div class="titulo">
             <p v-if="!editando">{{ propsIniciales.titulo }}</p>
             <input type="text" v-else class="titleChangeInput" v-model="tituloEditado" :placeholder="propsIniciales.titulo">
+            <button @click="copiarCodigoTarea"><img src="../assets/img/compartir.png" alt="Imagen de compartir tarea" width="15px" height="15px"></button>
         </div>
         <div class="prioridad">
             <p v-if="!editando">{{ propsIniciales.prioridad }}</p>
@@ -183,6 +247,9 @@ p {
 
     & .titulo {
         width: 20%;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
     }
 
     & .prioridad {

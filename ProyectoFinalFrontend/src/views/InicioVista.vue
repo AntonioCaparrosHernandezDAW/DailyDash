@@ -13,7 +13,7 @@ const moveToLogin = () => {
     <!-- NAVBAR -->
     <div class="navbar navbar-expand-lg navbar">
         <div class="container-fluid">
-            <a href="#" class="navbar-brand"><b>DailyDash</b></a>
+            <a href="#" class="navbar-brand"><img src="../assets/img/logoDailyDash.png" alt="Logo DailyDash" height="27px"></a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNavbarContent">
                 <span class="navbar-toggler-icon"></span>
@@ -227,6 +227,7 @@ section .texto {
     display: flex;
     justify-content: space-around;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 .bloque {
