@@ -39,7 +39,7 @@ const registerUser = async () => {
     };
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinal/api/registerUser', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/registerUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
