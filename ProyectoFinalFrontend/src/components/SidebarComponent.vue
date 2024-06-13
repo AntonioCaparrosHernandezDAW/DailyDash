@@ -6,6 +6,7 @@ import { ref } from 'vue';
 const emit = defineEmits(['ChangeSection']);
 let showPremiumBanner = ref(false);
 
+//Realiza el emit correspondiente para que se pueda mostrar otra sección desde la barra lateral
 function changeSection(newSection) {
     emit("ChangeSection", newSection);
 }

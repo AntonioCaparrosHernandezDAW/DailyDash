@@ -24,7 +24,7 @@ let toDoList = ref('');
 let modalCargado = ref(false);
 let loading = ref(false)
 
-//No lo puedo meter rn methods porq ni idea de ocmo hacerla async
+//Conecta con el servidor y carga las Tareas a mostrar
 async function loadToDos() {
     const body = {
         userToken: localStorage.getItem("userToken")
@@ -76,6 +76,7 @@ export default {
             await loadCalendarToDos()
         });
 
+        //Acomoda las tareas cargadas al formato de Vue-Calendar
         async function loadCalendarToDos(){
             toDoList.value = await loadToDos()
             toDoList.value.map((toDo) => {
@@ -97,6 +98,7 @@ export default {
             })
         }
 
+        //Inicializa la información del modal que se muestra al pulsar en una fecha
         const cargarModal = (info) => {
             modalCargado.value = false;
             const date = new Date(info.date);
@@ -110,6 +112,7 @@ export default {
             document.querySelector(".createNoteButton").click();
         }
 
+        //Conecta con el servidor y guarda en la base de datos los datos de la nueva tarea creada por el usuario
         const crearTarea = async () => {
             loading.value = true;
             let body = {
@@ -135,7 +138,6 @@ export default {
                     toDoStart.value = '';
                     toDoEnd.value = '';
                     document.getElementById('btnCerrar').click();
-                    //Ver como recargar esto, tenia puesto un loadCalendarToDos() pero al parecer duplica todas las tareas y si vacio el array de tareas antes de empezar a hacer el push se queda vacio igual
                     loading.value = false;
                 } else {
                     response = await response.json();
@@ -201,7 +203,6 @@ export default {
                     <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <!--FORMULARIO-->
                     <input type="text" class="inputTitulo" placeholder="Título" v-model="toDoTitle" />
                     <label class="labelTitulo">Título: </label>
 

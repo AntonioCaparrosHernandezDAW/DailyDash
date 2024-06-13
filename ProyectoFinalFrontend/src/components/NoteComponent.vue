@@ -16,6 +16,7 @@ const props = defineProps({
     text: String
 });
 
+//Conecta con el servidor para eliminar la visibilidad de la nota borrada
 const deletePost = async (event) => {
     event.stopPropagation(); //Esto evita que se abra tambien el modal al hacer click
     try {
@@ -44,6 +45,7 @@ const deletePost = async (event) => {
     }
 }
 
+//Realiza el edit correspondiente para que el elemento padre muestre los datos de la nota en su modal
 const mostrarNota = () => {
     emit('mostrarNota', props)
 }
@@ -102,6 +104,7 @@ p {
 }
 
 /* FORMULARIO */
+/* PARECE QUE .inputTitulo se puede quitar no se */
 .inputTitulo {
     width: 100%;
     border: none;

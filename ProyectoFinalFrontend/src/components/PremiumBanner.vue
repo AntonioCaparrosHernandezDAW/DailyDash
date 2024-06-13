@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted } from 'vue';
 
+//Muestra el modal al cargar el componente
 onMounted(()=>{
     document.querySelector('#initModal').click();
 });
 
+//Al pulsar en el botón de comprar te reenvia a la plataforma de pago para adquirir el premium
 async function reenvioPago(){
     const body = {
         userToken: localStorage.getItem("userToken")

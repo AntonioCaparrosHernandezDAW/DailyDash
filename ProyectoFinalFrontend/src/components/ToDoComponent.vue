@@ -37,9 +37,8 @@ const editarTarea = () => {
     editando.value = true;
 }
 
+//Conecta con el servidor para ejecutar el guardado de los datos editados de una tarea
 const guardarEdicion = async () => {
-    console.log(valoresEditados.value.fechaInicio)
-    console.log(valoresEditados.value.fechaFin)
     const body = {
         tituloOriginal: propsIniciales.titulo,
         userToken: localStorage.getItem("userToken"),
@@ -49,7 +48,6 @@ const guardarEdicion = async () => {
         fechaFin:valoresEditados.value.fechaFin
     }
     
-    //FETCH update
     try {
         let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateToDo', {
             method: 'PUT',
@@ -78,6 +76,7 @@ const guardarEdicion = async () => {
     editando.value = false;
 }
 
+//Conecta con el servidor para modificar la visibilidad de la tarea "borrada"
 const borrarTarea = async () => {
     const body = {
         titulo: propsIniciales.titulo,
@@ -111,6 +110,7 @@ const borrarTarea = async () => {
     }
 }
 
+//Conecta con el servidor para cambiar el estado de la tarea con respecto a si está completada o no. También cambia el color de la tarea
 const completarTarea = async () => {
     completadaEditable.value == 1 ? completadaEditable.value = 0 : completadaEditable.value = 1;   //Terciario que comprueba el valor de completada editable y pone el valor 0 si era 1 y 1 si era 0
 
@@ -145,6 +145,7 @@ const completarTarea = async () => {
     }
 }
 
+//Recoge del servidor el código de importación de la tarea seleccionada y lo mustra en una alerta personalizada
 const copiarCodigoTarea = async()=>{
     const body = {
         titulo: propsIniciales.titulo,

@@ -19,6 +19,7 @@ onMounted(async () => {
     loadDiaryEntry(formattedLoadedDay);
 })
 
+//Carga el contenido del diario de hoy (o bien el contenido previamente escrito o cadena vacía)
 async function loadDiaryEntry(dateToLoad) {
     let loadPost = {
         userToken: localStorage.getItem("userToken"),
@@ -46,7 +47,7 @@ async function loadDiaryEntry(dateToLoad) {
     loading.value = false;
 }
 
-
+//Guarda los datos escritos en el diario en la fecha seleccionada
 const saveDiaryEntry = async () => {
     let diaryInfo = {
         userToken: localStorage.getItem("userToken"),
@@ -78,6 +79,7 @@ const saveDiaryEntry = async () => {
     }
 }
 
+//Cambia el dia a mostrar en el diario y comprueba que no supere la fecha actual
 function changeDay(value) {
     const auxDate = new Date(formattedLoadedDay);
     auxDate.setDate(auxDate.getDate() + value);

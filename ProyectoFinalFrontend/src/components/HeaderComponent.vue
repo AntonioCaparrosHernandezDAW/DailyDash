@@ -16,6 +16,7 @@ const emit = defineEmits(['ChangeSection']);
 let loadingImage=ref(true);
 let userProfilePic=ref('');
 
+//Carga la foto de perfil cuando se carga el componente
 onMounted(async ()=>{
     if(localStorage.getItem('userToken')==null || localStorage.getItem('userToken')=='null'){
         unlogUser()
@@ -23,12 +24,14 @@ onMounted(async ()=>{
     await loadProfilePic()
 })
 
+//Emite la información para cambiar de sección desde la cabecera
 function changeSection(newSection) {
     localStorage.setItem('sectionLoad', newSection)
     emit("ChangeSection", newSection);
     router.push('/panel')
 }
 
+//Elimina la información en relación al usuario conectado y lo devuelve al login
 function unlogUser(){
     localStorage.setItem('sectionLoad', 'Notes')
     localStorage.setItem('userToken', null)
@@ -36,6 +39,7 @@ function unlogUser(){
     router.push('/login')
 }
 
+//Carga la foto de perfil del usuario conectado
 async function loadProfilePic(){
     loadingImage.value=true;
     try {
@@ -138,7 +142,6 @@ async function loadProfilePic(){
 }
 
 #userOptDropdown{
-    /*NO SIRVE EN TABLETS*/
     left: -6.7dvw;
     text-align: right;
 }

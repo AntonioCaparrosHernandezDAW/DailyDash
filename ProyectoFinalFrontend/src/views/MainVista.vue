@@ -3,13 +3,6 @@ import '../assets/main.css'
 import { onMounted, ref } from 'vue';
 import HeaderComponent from '../components/HeaderComponent.vue';
 import SidebarComponent from '../components/SidebarComponent.vue';
-/*
-import NotasVista from '../components/NotasVista.vue';
-import CalendarioVista from '../components/CalendarioVista.vue';
-import DiarioVista from '../components/DiarioVista.vue';
-import TareasVista from '../components/TareasVista.vue';
-*/
-//Cargar los componentes de forma asíncrona según los voy necesitando así no carga todos de golpe
 import { defineAsyncComponent } from 'vue';
 
 const NotasVista = defineAsyncComponent(() => import('../components/NotasVista.vue'));
@@ -17,14 +10,15 @@ const CalendarioVista = defineAsyncComponent(() => import('../components/Calenda
 const DiarioVista = defineAsyncComponent(() => import('../components/DiarioVista.vue'));
 const TareasVista = defineAsyncComponent(() => import('../components/TareasVista.vue'));
 
-
 let mainContent=ref('Notes');
 
+//Selecciona el nombre de la sección a cargar en /panel y lo guarda en localStorage para que se mantenga aunque se haga F5
 const loadSection = (newContent)=>{
     mainContent.value=newContent;
     localStorage.setItem('sectionLoad', newContent)
 }
 
+//Prepara el nombre de la sección a cargar
 onMounted(()=>{
     const sectionLoad = localStorage.getItem('sectionLoad');
     if(sectionLoad !== null && sectionLoad !== 'null'){
@@ -50,21 +44,7 @@ const componenteMostrar = {
         </div>
         
         <div id="content">
-            <!--
-            <div v-if="mainContent=='Calendar'">
-                <CalendarioVista />
-            </div>
-            <div v-if="mainContent=='Notes'">
-                <NotasVista />
-            </div>
-            <div v-if="mainContent=='Diary'">
-                <DiarioVista />
-            </div>
-            <div v-if="mainContent=='ToDo'">
-                <TareasVista />
-            </div>
-        -->
-            <component :is="componenteMostrar[mainContent]" />
+            <component :is="componenteMostrar[mainContent]" />  <!-- Carga la sección especificada en mainContent -->
         </div>
     </div>
 </template>

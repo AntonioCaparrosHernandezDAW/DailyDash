@@ -21,6 +21,7 @@ let loading = ref(true);
 
 let importCode=ref('');
 
+//Conecta con el servidor para guardar la información de una nueva tarea para el usuario que la ha creado
 const crearTarea = async () => {
     loading.value = true;
 
@@ -64,6 +65,7 @@ const crearTarea = async () => {
     fechaFinCrear.value = '';
 }
 
+//Carga las tareas del usuario
 async function loadToDos() {
     loading.value = true;
     try {
@@ -94,6 +96,7 @@ async function loadToDos() {
     }
 }
 
+//Conecta con el servidor para enviar un código de importación, si es correcto entonces el servidor creará una relación en la base de datos para que este usuario pueda ver esa tarea
 const importarTarea = async ()=>{
     const body = {
         userToken: localStorage.getItem("userToken"),
@@ -132,6 +135,7 @@ const importarTarea = async ()=>{
     importCode.value='';
 }
 
+//Carga las tareas que han sido previamente importadas para que el usuario pueda verlas
 async function loadImportedToDos(){
     loading.value = true;
     try {

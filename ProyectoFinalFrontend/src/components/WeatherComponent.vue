@@ -7,24 +7,25 @@ const props = defineProps({
     date: String
 });
 
-const apiKey = '7a7fc674ccb250c106ae7d0744bfbcb6';
+const apiKey = '7a7fc674ccb250c106ae7d0744bfbcb6';  //Clave de conexión a OpenWeather
 const forecasts = ref([]);
 const averageWindSpeed = ref(0);
 const averageRainProbability = ref(0);
 
 const fetchWeatherData = async () => {
     try {
-        let response = await fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${props.city}&appid=${apiKey}&units=metric`);
+        let response = await fetch(`http://api.openweathermap.org/data/2.5/forecast?q=${props.city}&appid=${apiKey}&units=metric`); //Carga los datos en los próximos 5 días de la ciudad seleccionada
         
         if (response.ok) {
             response = await response.json();
-            // Ajustar el filtro para comparar solo la parte de la fecha
             const filteredForecasts = response.list.filter(forecast =>
                 forecast.dt_txt.split(' ')[0] === props.date
             );
 
             if (filteredForecasts.length > 0) {
-                const windSpeeds = filteredForecasts.map(forecast => forecast.wind.speed);
+                const windSpeeds = filteredForecasts.map(forecast =>
+                    forecast.wind.speed
+                );
                 averageWindSpeed.value = windSpeeds.reduce((a, b) => a + b, 0) / windSpeeds.length;
 
                 const rainProbabilities = filteredForecasts.map(forecast => forecast.pop * 100);
@@ -32,20 +33,21 @@ const fetchWeatherData = async () => {
 
                 forecasts.value = filteredForecasts.map(forecast => ({
                     date: forecast.dt_txt,
-                    rainProbability: forecast.pop * 100,  // 'pop' es la probabilidad de precipitación
+                    rainProbability: forecast.pop * 100,
                 }));
             } else {
                 averageWindSpeed.value = 0;
                 averageRainProbability.value = 0;
             }
         } else {
-            console.log(`Error al obtener los datos metereológicos`);
+            console.log('Ha ocurrido un error al cargar los datos metereológicos');
         }
     } catch (error) {
-        console.log(`Error al obtener los datos metereológicos`);
+        console.log('Error al conectar con el servidor: ', error);
     }
 };
 
+//Observa si se realiza un cambio en las variables city o date y ejecuta la función asociada
 watch(() => 
     [props.city, props.date], 
     fetchWeatherData, 

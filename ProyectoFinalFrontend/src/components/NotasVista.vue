@@ -25,6 +25,7 @@ onMounted(async () => {
     document.getElementById('createNoteBox').addEventListener('hidden.bs.modal', clearNote)
 })
 
+//Recoge las notas del usuario guardadas en la base de datos y las guarda en una variable
 async function loadNotes() {
     loading.value = true;
 
@@ -56,6 +57,7 @@ async function loadNotes() {
     }
 }
 
+//Guarda los datos introducidos por el usuario en la base de datos
 const createNote = async () => {
     let noteToCreate = {
         userToken: note.userToken,
@@ -93,12 +95,14 @@ const createNote = async () => {
     }
 }
 
+//Vacia los datos previamente colocados en el modal
 function clearNote() {
     note.noteTitle.value = "";
     note.noteText.value = "";
     editando.value = false;
 }
 
+//Muestra en el model los valores de la nota para poder verla mas facilmente o editarla
 const mostrarNota = (editingNote) => {
     editando.value = true;
     idEditingNote = editingNote.idNote;
@@ -107,6 +111,7 @@ const mostrarNota = (editingNote) => {
     document.getElementById('openCreateNoteButton').click();
 }
 
+//Guarda los cambios que se hayan realizado a una nota que haya pasado previamente por mostrarNota()
 const saveNoteChanges = async () => {
     const editedNote = {
         idNote: idEditingNote,
