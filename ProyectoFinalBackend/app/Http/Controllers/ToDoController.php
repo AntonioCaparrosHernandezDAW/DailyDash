@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ToDoController extends Controller
 {
+    //Comprueba los campos introducidos al crear una nota por parte del usuario así como si cumple con el límite de notas por usuario y crea la nota en la base de datos si todo es correcto
     public function createToDo(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -79,7 +80,6 @@ class ToDoController extends Controller
         DB::table('todos')
             ->insert([
                 "idUsuario"=>$user->id,
-                "usuariosAsociados"=>null,
                 "titulo"=>$request['titulo'],
                 "prioridad"=>$request['prioridad'],
                 "fechaInicio"=>$request['fechaInicio'],
@@ -88,6 +88,7 @@ class ToDoController extends Controller
             ]);
     }
 
+    //Devuelve una matriz con todass las notas visibles del usuario seleccionado
     public function listToDos(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -111,6 +112,7 @@ class ToDoController extends Controller
         ]);
     }
 
+    //Modifica el estado de completado de la tarea seleccionada
     public function completeToDo(Request $request){ 
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -132,6 +134,7 @@ class ToDoController extends Controller
             ]);
     }
 
+    //Modifica el parámetro de visibilidad de la tarea seleccionada y lo modifica para que no pueda ser visible por el usuario
     public function deleteToDo(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -203,6 +206,7 @@ class ToDoController extends Controller
             ]);
     }
 
+    //Crea un código propio de importación para la tarea seleccionada y se lo da al usuario
     public function getToDoCode(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -235,6 +239,7 @@ class ToDoController extends Controller
         ]);
     }
 
+    //Comprueba el código de importación de la tarea y crea una relación en la base de datos de "imported_todos" para que el usuario pueda ver la tarea importada
     public function importToDo(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -281,6 +286,7 @@ class ToDoController extends Controller
         ]);
     }
 
+    //Devuelve una matriz con todas las tareas importadas correspondientes al usuario seleccionado
     public function listImportedToDos(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])

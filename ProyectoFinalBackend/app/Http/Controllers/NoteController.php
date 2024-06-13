@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class NoteController extends Controller
 {
+    //Comprueba las limitaciones del usuario según si es premium o no y crea una nueva nota en la base de datos para el usuario introducido con los parámetros que desee
     public function createNote(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -56,6 +57,7 @@ class NoteController extends Controller
             ], 400);
         }
 
+        //Inserción en la base de datos
         DB::table('notes')->insert([
             'idUser'=>$user->id,
             'title'=>$request['noteTitle'],
@@ -64,6 +66,7 @@ class NoteController extends Controller
         ]);
     }
 
+    //Recoge todas las notas que posee el usuario seleccionado
     public function listNotes(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -87,6 +90,7 @@ class NoteController extends Controller
         ]);
     }
 
+    //Comprueba el id de la nota y modifica sus campos por los nuevos introducidos
     public function updateNote(Request $request){
         $note = DB::table('notes')
             ->where('idNote', $request['idNote'])
@@ -162,6 +166,7 @@ class NoteController extends Controller
         }
     }
 
+    //Modifica la visibilidad d ela nota borrada para que el usuario no pueda volver a verla
     public function deleteNote(Request $request){
         $note = DB::table('notes')
             ->where('idNote', $request['idNote'])

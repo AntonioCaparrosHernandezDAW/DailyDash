@@ -49,7 +49,7 @@ const guardarEdicion = async () => {
     }
     
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/updateToDo', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ const borrarTarea = async () => {
 
     //Fetch borrar
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/deleteToDo', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -122,7 +122,7 @@ const completarTarea = async () => {
 
     //Fetch update completada
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/completeToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/completeToDo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -153,7 +153,7 @@ const copiarCodigoTarea = async()=>{
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getToDoCode', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/getToDoCode', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

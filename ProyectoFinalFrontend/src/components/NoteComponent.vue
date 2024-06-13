@@ -20,7 +20,7 @@ const props = defineProps({
 const deletePost = async (event) => {
     event.stopPropagation(); //Esto evita que se abra tambien el modal al hacer click
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/deleteNote', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/deleteNote', {
             method: 'PUT',  //Solo cambiará la visibilidad a false en el servidor asi que no llega a borar nada
             headers: {
                 'Content-Type': 'application/json'
@@ -104,7 +104,6 @@ p {
 }
 
 /* FORMULARIO */
-/* PARECE QUE .inputTitulo se puede quitar no se */
 .inputTitulo {
     width: 100%;
     border: none;
@@ -166,31 +165,4 @@ textarea {
         height: 13dvh;
     }
 }
-
-/*
-<!--MODAL-->
-    <div class="modal fade" id="modifyNoteBox">
-        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h1 class="modal-title fs-2">Modificar Nota</h1>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <!--FORMULARIO-->
-                    <input type="text" class="inputTitulo" placeholder="Título" v-model="editedTitle">
-                    <label class="labelTitulo">Título: </label>
-
-                    <label class="labelTxtArea">Texto: </label><br>
-                    <textarea v-model="editedText"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"  id="closeNoteButton" @click="clearEditNote">Cerrar</button>
-                    <button type="button" class="btn btn-primary" @click="saveNoteChanges">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--MODAL END-->
-*/
 </style>

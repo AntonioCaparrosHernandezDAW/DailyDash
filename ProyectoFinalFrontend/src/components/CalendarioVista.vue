@@ -31,7 +31,7 @@ async function loadToDos() {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/listToDos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -124,7 +124,7 @@ export default {
             }
 
             try {
-                let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
+                let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/createToDo', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

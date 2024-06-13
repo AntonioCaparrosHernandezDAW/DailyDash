@@ -43,7 +43,7 @@ function unlogUser(){
 async function loadProfilePic(){
     loadingImage.value=true;
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getProfilePicture', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/getProfilePicture', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

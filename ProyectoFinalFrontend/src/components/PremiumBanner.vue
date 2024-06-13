@@ -12,7 +12,7 @@ async function reenvioPago(){
         userToken: localStorage.getItem("userToken")
     }
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createPaymentToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/createPaymentToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

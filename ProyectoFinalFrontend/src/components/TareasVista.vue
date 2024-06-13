@@ -34,7 +34,7 @@ const crearTarea = async () => {
     };
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/createToDo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -69,7 +69,7 @@ const crearTarea = async () => {
 async function loadToDos() {
     loading.value = true;
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listToDos', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/listToDos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -104,7 +104,7 @@ const importarTarea = async ()=>{
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/importToDo', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/importToDo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ const importarTarea = async ()=>{
 async function loadImportedToDos(){
     loading.value = true;
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listImportedToDos', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/listImportedToDos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

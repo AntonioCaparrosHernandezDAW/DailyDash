@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
-    //Devuelve los datos relevantes para identificar al usuarioo que corresponde al token recibido
+    //Devuelve los datos relevantes para identificar al usuario que corresponde al token recibido
     public function getUserByToken(Request $request){
         //Recoge al usuario
         $user = DB::table('usuarios')
@@ -34,6 +34,7 @@ class UserController extends Controller
         ]);
     }
 
+    //Recoge la imagen almacenada en storage/app/profilePictures y las devuelve al cliente en un formato que pueda tratar como es un "blob"
     public function getProfilePicture(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -173,6 +174,7 @@ class UserController extends Controller
         }
     }
 
+    //Genera un código asociado al usuario que vaya a comprar la versión premium
     public function createPaymentToken(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -191,18 +193,18 @@ class UserController extends Controller
         ]);
     }
 
+    //Comprueba el token previamente creado por "createPaymentToken"(Esto se hace así porque a esta funcion solo se puede acceder una vez se confierme el pago exitoso)
     public function checkPaymentToken(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
             ->first();
 
         return response()->json([
-            'resultado'=>$user->token_pago == $request['paymentToken'],
-            //'tokenIntroducido'=>$request['paymentToken'],
-            //'tokenReal'=>$user->token_pago
+            'resultado'=>$user->token_pago == $request['paymentToken']
         ]);
     }
 
+    //Otorga al usuario el atributo premium
     public function grantPremiumToUser(Request $request){
         DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -211,6 +213,7 @@ class UserController extends Controller
             ]); 
     }
 
+    //Recoge la imagen nueva introducida por el usuario y guarda los datos en la carpeta storage con un nombre asociado a el
     public function changeProfilePicture(Request $request){
         //Mensajes de error
         $messages = [
@@ -237,6 +240,7 @@ class UserController extends Controller
             ->where('remember_token',$request['userToken'])
             ->first();
 
+        //Guarda en storage con su id como nombre
         $filename = $user->id.'.png';
         Storage::putFileAs('profilePictures', $request->file('profilePic'), $filename);
 

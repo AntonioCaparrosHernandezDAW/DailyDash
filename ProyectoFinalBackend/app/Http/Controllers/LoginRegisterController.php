@@ -168,7 +168,7 @@ class LoginRegisterController extends Controller
             $user = DB::table("usuarios")
                 ->where("email", $request["email"])
                 ->update([
-                    'password'=> Hash::make($request['newPassword'])
+                    'password'=> Hash::make($request['newPassword'])    //Crea una nueva contraseña cifrada
                 ]);
 
                 return response()->json([

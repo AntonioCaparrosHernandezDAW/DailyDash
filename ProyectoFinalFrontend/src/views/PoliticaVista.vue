@@ -2,6 +2,7 @@
 </script>
 
 <template>
+    <!-- Página estática con la licencia del proyecto -->
     <RouterLink to="/login"><img src="../assets/img/arrowRight.png" alt="Botón volver atrás" width="50px"></RouterLink>
     <div>
         <h1>Creative Commons Legal Code</h1>

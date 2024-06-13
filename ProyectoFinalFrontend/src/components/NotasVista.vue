@@ -30,7 +30,7 @@ async function loadNotes() {
     loading.value = true;
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/listNotes', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/listNotes', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ const createNote = async () => {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/createNote', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/createNote', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -120,7 +120,7 @@ const saveNoteChanges = async () => {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateNote', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/updateNote', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

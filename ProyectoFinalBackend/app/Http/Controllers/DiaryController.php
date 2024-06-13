@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 
 class DiaryController extends Controller
 {
+    //Comprueba si el usuario introducido en el día seleccionado tiene datos en el diario y los devuelve, o devuelve una cadena vacía en caso negativo
     public function getDiaryEntry(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])
@@ -29,6 +30,7 @@ class DiaryController extends Controller
         }
     }
 
+    //Comprueba las limitaciones de un usuario premium/no premium y actualiza el registro del diario de el usuario seleccionado en el día establecido por el nuevo texto
     public function updateDiaryEntry(Request $request){
         $user = DB::table('usuarios')
             ->where('remember_token',$request['userToken'])

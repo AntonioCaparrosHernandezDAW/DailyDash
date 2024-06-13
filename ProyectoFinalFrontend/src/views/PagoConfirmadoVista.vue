@@ -2,6 +2,7 @@
 import router from '@/router';
 import { onMounted } from 'vue';
 
+//Comprueba si el token de pago previamente creado es correcto y si sí lo es lo envia a grantPremiumToUser()
 async function comprobarPago() {
     const body = {
         userToken: localStorage.getItem("userToken"),
@@ -9,7 +10,7 @@ async function comprobarPago() {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/checkPaymentToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/checkPaymentToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -22,7 +23,6 @@ async function comprobarPago() {
             if(data.resultado){
                 grantPremiumToUser()
             }else{
-                //En vez de devolver con un error se puede dejar la pagina y hacer q el template sea un mensaje de error
                 router.push('/panel')
             }
         } else {
@@ -33,13 +33,14 @@ async function comprobarPago() {
     }
 }
 
+//Recoge el token del usuario y le otorga el atributo de usuario premium
 async function grantPremiumToUser(){
     const body = {
         userToken: localStorage.getItem("userToken")
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/grantPremiumToUser', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/grantPremiumToUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -58,7 +59,6 @@ async function grantPremiumToUser(){
 }
 
 onMounted(() => {
-    console.log("Comprobando...")
     comprobarPago();
 })
 </script>

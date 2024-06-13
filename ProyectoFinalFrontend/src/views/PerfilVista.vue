@@ -20,7 +20,7 @@ let loadingImage = ref(false);
 //Función necesaria para cargar en el perfil el nombre de usuario mediante una llamada al servidor
 async function loadUsername() {
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getUserByToken', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/getUserByToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -54,7 +54,7 @@ const editUsername = async () => {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changeUsername', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/changeUsername', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -93,7 +93,7 @@ const changePassword = async () => {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePassword', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/changePassword', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -126,10 +126,12 @@ const changePassword = async () => {
     newPassword_confirmation.value = confirmedPassword.value;
 };
 
+//Función intermedia para que se abra el input de introducir imagen
 function clickImage(){
     document.getElementById('uploadImageInput').click();
 }
 
+//Guarda la imagen introducida por el usuario en el servidor con un nombre asociado al mismo
 async function changeImage(event){
     const imagen = event.target.files[0]
 
@@ -138,7 +140,7 @@ async function changeImage(event){
     body.append('userToken', localStorage.getItem("userToken"));
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changeProfilePicture', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/changeProfilePicture', {
             method: 'POST',
             body: body
         });
@@ -166,10 +168,11 @@ async function changeImage(event){
     loadProfilePic();
 }
 
+//Recoge los datos de la imagen desde el servidor y la muestra donde sea requerido
 async function loadProfilePic(){
     loadingImage.value=true;
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getProfilePicture', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/getProfilePicture', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

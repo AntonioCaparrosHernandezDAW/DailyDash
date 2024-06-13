@@ -39,7 +39,7 @@ const registerUser = async () => {
     };
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/registerUser', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinal/api/registerUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ const logUser = async () => {
     };
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/logUser', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/logUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -119,7 +119,7 @@ const logUser = async () => {
 //Comprueba el correo introducido por el usuario y le envía un correo al mismo con un código
 const sendEmailToRememberPassword = async () => {
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/sendEmailToRemember', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/sendEmailToRemember', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -158,7 +158,7 @@ const changePassword = async () => {
     };
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/changePasswordWithCode', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/changePasswordWithCode', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

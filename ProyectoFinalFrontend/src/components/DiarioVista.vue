@@ -27,7 +27,7 @@ async function loadDiaryEntry(dateToLoad) {
     }
 
     try {
-        const response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/getDiaryEntry', {
+        const response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/getDiaryEntry', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ const saveDiaryEntry = async () => {
     }
 
     try {
-        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBakend/api/updateDiaryEntry', {
+        let response = await fetch('http://localhost/Proyecto/ProyectoFinalBackend/api/updateDiaryEntry', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
